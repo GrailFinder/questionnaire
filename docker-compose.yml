@@ -2,8 +2,28 @@ version: '2.1'
 
 services:
 
+  questmaker-db:
+    container_name: questmaker-db
+    build: ./services/questmaker/db
+    ports:
+      - 5435:5432  # expose ports - HOST:CONTAINER
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: exit 0
+
   questmaker:
     container_name: questmaker
     build: .
     ports:
       - 5001:5000 # expose ports - HOST:CONTAINER
+    environment:
+      - APP_SETTINGS=services.questmaker.config.DevelopmentConfig
+      - DATABASE_URL=postgres://postgres:postgres@questmaker-db:5432/questmaker_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@questmaker-db:5432/questmaker_test
+    depends_on:
+      questmaker-db:
+        condition: service_healthy
+    links:
+      - questmaker-db

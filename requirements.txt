@@ -1,2 +1,4 @@
 flask
 flask-script==2.0.5
+Flask-SQLAlchemy==2.2
+psycopg2==2.7.1

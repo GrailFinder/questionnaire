@@ -1,10 +1,18 @@
 from flask import Flask, jsonify
+from flask_sqlalchemy import SQLAlchemy
+import os
 
-app = Flask(__name__)
+
+# instantiate the db
+db = SQLAlchemy()
 
 
-@app.route("/", methods=["GET"])
-def index_page():
-    return 'Questionnaire place!'
+def create_app():
 
-app.run()
+    # init app
+    app = Flask(__name__)
+    # set config
+    app_settings = os.getenv('APP_SETTINGS')
+    app.config.from_object(app_settings)
+    return app
+
