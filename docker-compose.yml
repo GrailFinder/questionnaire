@@ -22,6 +22,7 @@ services:
       - APP_SETTINGS=services.questmaker.config.DevelopmentConfig
       - DATABASE_URL=postgres://postgres:postgres@questmaker-db:5432/questmaker_dev
       - DATABASE_TEST_URL=postgres://postgres:postgres@questmaker-db:5432/questmaker_test
+      - SECRET_KEY=my_precious
     depends_on:
       questmaker-db:
         condition: service_healthy

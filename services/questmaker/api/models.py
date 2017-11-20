@@ -3,8 +3,8 @@ import datetime, uuid
 
 
 questbond = db.Table("questbond",
-    db.Column('questions', db.String(128), db.ForeignKey('users.id'), primary_key=True),
-    db.Column('answers', db.String(128), db.ForeignKey('teams.id'), primary_key=True)
+    db.Column('questions', db.String(128), db.ForeignKey('questions.id'), primary_key=True),
+    db.Column('answers', db.String(128), db.ForeignKey('answers.id'), primary_key=True)
 )
 
 class Question(db.Model):

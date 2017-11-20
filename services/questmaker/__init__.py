@@ -14,5 +14,13 @@ def create_app():
     # set config
     app_settings = os.getenv('APP_SETTINGS')
     app.config.from_object(app_settings)
+
+    db.init_app(app)
+
+    # register blueprint
+    from services.questmaker.api.questions import questions_blueprint
+
+    app.register_blueprint(questions_blueprint)
+
     return app
 
