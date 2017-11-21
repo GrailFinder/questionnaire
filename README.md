@@ -1,4 +1,4 @@
-# questionnaire
+# questionnaire [![Build Status](https://travis-ci.org/GrailFinder/questionnaire.svg?branch=dev)](https://travis-ci.org/GrailFinder/questionnaire)
 
 ### Part one would be maker of ankete (questionnaire is too long, we need another word for this)
 - api structure
