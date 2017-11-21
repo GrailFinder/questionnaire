@@ -24,5 +24,5 @@ class TestQuestionService(BaseTestCase):
                 content_type='application/json',
             )
             data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 201)
             self.assertIn('success', data['status'])

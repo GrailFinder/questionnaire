@@ -12,7 +12,7 @@ def ping_pong():
         'message': 'pong!'
     })
 
-@questions_blueprint.route('quest', methods=['POST'])
+@questions_blueprint.route('/quest', methods=['POST'])
 def add_question():
     # get data from request
     post_data = request.get_json()
