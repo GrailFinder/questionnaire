@@ -26,3 +26,10 @@ class TestQuestionService(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
             self.assertIn('success', data['status'])
+
+    def test_get_all_questions(self):
+        """Check get request for all questions"""
+        response = self.client.get('quest')
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('success', data['status'])

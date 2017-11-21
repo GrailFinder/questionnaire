@@ -48,3 +48,17 @@ def add_question():
             'message': 'Invalid payload.'
         }
         return make_response(jsonify(response_object)), 400
+
+
+@questions_blueprint.route('/quest', methods=['GET'])
+def show_all():
+    questions = Question.query.all()
+    data_list = [{'id': q.id, 'title': q.title, 'created_at': q.created_at, 'multiansw': q.multiansw,
+     'answers': [a.text for a in q.answers]} for q in questions]
+
+    response_object = {
+        'status': 'success',
+        'data': data_list,
+    }
+    
+    return jsonify(response_object), 200
