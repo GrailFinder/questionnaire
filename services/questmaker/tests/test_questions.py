@@ -35,11 +35,10 @@ class TestQuestionService(BaseTestCase):
         self.assertIn('success', data['status'])
 
 
-    def test_specific_quest(self):
+    def test_single_quest(self):
         """test getting question by id"""
 
         q = add_quest(title="Are you even test?")
-        print(q.id)
         with self.client:
             response = self.client.get(f'quest/{q.id}')
             data = json.loads(response.data.decode())
