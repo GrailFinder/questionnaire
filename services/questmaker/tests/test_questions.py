@@ -1,6 +1,6 @@
 import json
 from services.questmaker.tests.base import BaseTestCase
-
+from utils import add_quest
 
 class TestQuestionService(BaseTestCase):
     """Tests for the Questions Service."""
@@ -33,3 +33,17 @@ class TestQuestionService(BaseTestCase):
         data = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
         self.assertIn('success', data['status'])
+
+
+    def test_specific_quest(self):
+        """test getting question by id"""
+
+        q = add_quest(title="Are you even test?")
+        print(q.id)
+        with self.client:
+            response = self.client.get(f'quest/{q.id}')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue('created_at' in data['data'])
+            self.assertIn('Are you even test?', data['data']['title'])
+            self.assertIn('success', data['status'])

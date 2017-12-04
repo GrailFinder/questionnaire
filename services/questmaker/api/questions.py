@@ -62,3 +62,28 @@ def show_all():
     }
     
     return jsonify(response_object), 200
+
+@questions_blueprint.route('/quest/<quest_id>', methods=['GET'])
+def get_single_quest(quest_id):
+    """Get single quest details"""
+    response_object = {
+        'status': 'fail',
+        'message': 'quest does not exist'
+    }
+    try:
+        quest = Question.query.filter_by(id=quest_id).first()
+        if not quest:
+            return make_response(jsonify(response_object)), 404
+        else:
+            response_object = {
+                'status': 'success',
+                'data': {
+                    'id': quest.id,
+                    'title': quest.title,
+                    'created_at': quest.created_at,
+                    'answers': ["{}:{}".format(a.id, a.text) for a in quest.answers]
+                }
+            }
+            return make_response(jsonify(response_object)), 200
+    except ValueError:
+        return make_response(jsonify(response_object)), 404
