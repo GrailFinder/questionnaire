@@ -2,6 +2,7 @@ from flask_script import Manager
 import unittest
 import coverage
 from services.questmaker import create_app, db
+from services.questmaker.api.models import Question, Answer
 
 COV = coverage.coverage(
     branch=True,
@@ -23,6 +24,24 @@ def recreate_db():
     db.drop_all()
     db.create_all()
     db.session.commit()
+
+
+@manager.command
+def seed_db():
+    """get some data in db"""
+    q1 = Question(title="How was your day, sweety?")
+    a1 = Answer("Okay")
+    a2 = Answer("Good")
+    a3 = Answer("Bad")
+    a4 = Answer("Who are you again?")
+
+    for a in (a1, a2, a3, a4):
+        db.session.add(a)
+        q1.answers.append(a)
+
+    db.session.add(q1)
+    db.session.commit()
+
 
 
 @manager.command
