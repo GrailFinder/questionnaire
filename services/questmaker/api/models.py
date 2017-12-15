@@ -26,6 +26,9 @@ class Inquiry(db.Model): # Опросник
         self.title = title
         self.created_at = created_at
         self.description = description
+
+    def __str__(self):
+        return f'{self.title}: {self.id}'
     
 
 class Question(db.Model):
@@ -42,6 +45,9 @@ class Question(db.Model):
         self.created_at = created_at
         self.multiansw = multiansw
 
+    def __str__(self):
+        return f'{self.title}: {self.id}'
+
 class Answer(db.Model):
     __tablename__ = "answers"
     id = db.Column(db.String(128), nullable=False, primary_key=True)
@@ -54,3 +60,6 @@ class Answer(db.Model):
         self.text = text
         self.value = value
         self.created_at = created_at
+
+    def __str__(self):
+        return f'{self.title}: {self.id}'

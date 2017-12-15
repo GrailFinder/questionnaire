@@ -50,7 +50,7 @@ def add_inquiry():
         
         inquiry = Inquiry.query.all()
         data_list = [{'id': i.id, 'title': i.title, 'created_at': i.created_at,
-        'questions': [q.title for q in i.questions]} for i in inquiry]
+        'questions': [f'{q}' for q in i.questions]} for i in inquiry]
 
         response_object = {
             'status': 'success',
