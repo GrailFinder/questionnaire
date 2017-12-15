@@ -29,7 +29,7 @@ class TestQuestionService(BaseTestCase):
 
     def test_get_all_questions(self):
         """Check get request for all questions"""
-        response = self.client.get('quest')
+        response = self.client.get('/quest')
         data = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
         self.assertIn('success', data['status'])

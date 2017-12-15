@@ -7,7 +7,7 @@ answers_blueprint = Blueprint('answers', __name__, template_folder='./templates'
 
 
 @answers_blueprint.route('/answer', methods=['POST'])
-def add_Answer():
+def add_answer():
     # get data from request
     post_data = request.get_json()
     if not post_data:
@@ -45,25 +45,24 @@ def add_Answer():
 
 
 
-@Answers_blueprint.route('/quest/<quest_id>', methods=['GET'])
-def get_single_quest(quest_id):
-    """Get single quest details"""
+@answers_blueprint.route('/answer/<answer_id>', methods=['GET'])
+def get_single_answer(answer_id):
+    """Get single answer details"""
     response_object = {
         'status': 'fail',
-        'message': 'quest does not exist'
+        'message': 'answer does not exist'
     }
     try:
-        quest = Answer.query.filter_by(id=quest_id).first()
-        if not quest:
+        answer = Answer.query.filter_by(id=answer_id).first()
+        if not answer:
             return make_response(jsonify(response_object)), 404
         else:
             response_object = {
                 'status': 'success',
                 'data': {
-                    'id': quest.id,
-                    'text': quest.text,
-                    'created_at': quest.created_at,
-                    'answers': ["{}:{}".format(a.id, a.text) for a in quest.answers]
+                    'id': answer.id,
+                    'text': answer.text,
+                    'created_at': answer.created_at,
                 }
             }
             return make_response(jsonify(response_object)), 200

@@ -20,12 +20,12 @@ class TestAnswerService(BaseTestCase):
             self.assertIn('success', data['status'])
 
 
-    def test_single_quest(self):
+    def test_single_answer(self):
         """test getting answer by id"""
 
         answ = add_answer(text="Are you even test?")
         with self.client:
-            response = self.client.get(f'quest/{answ.id}')
+            response = self.client.get(f'answer/{answ.id}')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertTrue('created_at' in data['data'])
