@@ -13,13 +13,13 @@ questgroup = db.Table("questgroup",
 )
 
 
-class Inquery(db.Model): # Опросник
+class Inquiry(db.Model): # Опросник
     __tablename__ = "inquiries"
     id = db.Column(db.String(128), nullable=False, primary_key=True)
     title = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
     description = db.Column(db.Text, nullable=True)
-    questions = db.relationship("Question", secondary=questgroup, backref=db.backref('inquery', lazy='dynamic'))
+    questions = db.relationship("Question", secondary=questgroup, backref=db.backref('inquiry', lazy='dynamic'))
 
     def __init__(self, title, description=None, created_at=datetime.datetime.now()):
         self.id = str(uuid.uuid1())

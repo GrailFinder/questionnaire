@@ -20,9 +20,11 @@ def create_app():
     # register blueprint
     from services.questmaker.api.questions import questions_blueprint
     from services.questmaker.api.answers import answers_blueprint
+    from services.questmaker.api.inquiry import inquiry_blueprint
 
     app.register_blueprint(questions_blueprint)
     app.register_blueprint(answers_blueprint)
+    app.register_blueprint(inquiry_blueprint)
 
     return app
 
