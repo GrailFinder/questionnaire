@@ -92,4 +92,4 @@ def show_index():
 @inquiry_blueprint.route('/front-inq/<inquiry_id>', methods=['GET'])
 def show_inquiry(inquiry_id):
     inquiry = Inquiry.query.filter_by(id=inquiry_id).first()
-    return render_template('index.html')
+    return render_template('inquiry.html', questions=inquiry.questions)

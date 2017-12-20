@@ -1,0 +1,7 @@
+button:checked{
+    background-color: #42a5fc;
+}
+
+.list-group-item:hover{
+    background-color: silver;
+}

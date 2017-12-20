@@ -9,13 +9,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <!-- styles --><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
      integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" type="text/css">
     {% block css %}{% endblock %}
   </head>
 
     <body>
 
         <nav class="navbar navbar-light bg-light justify-content-between">
-            <a class="navbar-brand">Questionnarie</a>
+            <a class="navbar-brand">Navbar</a>
             <form class="form-inline">
                 <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
@@ -23,8 +24,13 @@
         </nav>
 
         <div class="list-group">
-            {% for inq in inquiries %}
-                <a href='/front-inq/{{inq.id}}'><button type="button" class="list-group-item list-group-item-action">{{inq.title}}</button></a>
+            {% for quest in questions %}
+                <button type="button" class="list-group-item list-group-item-action">{{quest.title}}</button>
+                <div class="list-group btn-group">
+                    {% for answ in quest.answers %}
+                        <button type="radio" class="list-group-item list-group-item-action">{{answ.text}}</button>
+                    {% endfor %}
+                </div>
             {% endfor %}
         </div>
 
