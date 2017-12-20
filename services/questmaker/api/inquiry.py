@@ -60,25 +60,36 @@ def add_inquiry():
 
 @inquiry_blueprint.route('/inquiry/<inquiry_id>', methods=['GET'])
 def get_single_inquiry(inquiry_id):
-    """Get single inqury details"""
+    """Get single inquiry details"""
     response_object = {
         'status': 'fail',
-        'message': 'inqury does not exist'
+        'message': 'inquiry does not exist'
     }
     try:
-        inqury = Inquiry.query.filter_by(id=inquiry_id).first()
-        if not inqury:
+        inquiry = Inquiry.query.filter_by(id=inquiry_id).first()
+        if not inquiry:
             return make_response(jsonify(response_object)), 404
         else:
             response_object = {
                 'status': 'success',
                 'data': {
-                    'id': inqury.id,
-                    'title': inqury.title,
-                    'created_at': inqury.created_at,
-                    'questions': ["{}:{}".format(q.id, q.title) for q in inqury.questions]
+                    'id': inquiry.id,
+                    'title': inquiry.title,
+                    'created_at': inquiry.created_at,
+                    'questions': ["{}:{}".format(q.id, q.title) for q in inquiry.questions]
                 }
             }
             return make_response(jsonify(response_object)), 200
     except ValueError:
         return make_response(jsonify(response_object)), 404
+
+
+@inquiry_blueprint.route('/', methods=['GET'])
+def show_index():
+    inquiries = Inquiry.query.all()
+    return render_template('index.html', inquiries=inquiries)
+
+@inquiry_blueprint.route('/front-inq/<inquiry_id>', methods=['GET'])
+def show_inquiry(inquiry_id):
+    inquiry = Inquiry.query.filter_by(id=inquiry_id).first()
+    return render_template('index.html')
