@@ -2,10 +2,10 @@
     "swagger": "2.0",
     "info": {
       "version": "0.0.1",
-      "title": "ankete",
+      "title": "questmaker",
       "description": "Swagger spec for documenting the questionnarie"
     },
-    "host": "192.168.99.100:5001",
+    "host": "192.168.99.100",
     "schemes": [
       "http"
     ],
@@ -65,7 +65,7 @@
           ],
           "responses": {
             "200": {
-              "description": "User added"
+              "description": "Inquiry added"
             }
           }
         }
