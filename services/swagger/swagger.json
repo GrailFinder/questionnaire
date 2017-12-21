@@ -5,7 +5,7 @@
       "title": "ankete",
       "description": "Swagger spec for documenting the questionnarie"
     },
-    "host": "192.168.99.100",
+    "host": "192.168.99.100:5001",
     "schemes": [
       "http"
     ],
