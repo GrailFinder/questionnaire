@@ -3,12 +3,11 @@
     "info": {
       "version": "0.0.1",
       "title": "questmaker",
-      "description": "Swagger spec for documenting the questionnarie"
+      "description": "Swagger spec for documenting the questmaker"
     },
     "host": "192.168.99.100",
     "schemes": [
-      "http",
-      "https"
+      "http"
     ],
     "securityDefinitions": {
       "Bearer": {
@@ -42,56 +41,29 @@
               "description": "inquiry object"
             }
           }
-        },
-        "post": {
-          "description": "Adds a new Inquiry",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "Inquiry",
-              "in": "body",
-              "description": "Inquiry to add",
-              "required": true,
-              "schema": {
-                "$ref": "#/definitions/Inquiry"
-              }
-            }
-          ],
-          "security": [
-            {
-              "Bearer": []
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Inquiry added"
-            }
-          }
         }
-      }
-    },
+      },
     "definitions": {
-      "Inquiry": {
+      "User": {
         "type": "object",
         "required": [
-          "title",
-          "questions",
-          "description"
+          "username",
+          "email",
+          "password"
         ],
         "properties": {
-          "title": {
+          "username": {
             "type": "string"
           },
-          "questions": {
-            "type": "object"
+          "email": {
+            "type": "string"
           },
-          "description": {
+          "password": {
             "type": "string"
           }
         }
       }
     }
-  }
+}
+}
   
