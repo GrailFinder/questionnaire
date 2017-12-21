@@ -19,6 +19,9 @@
           "responses": {
             "200": {
               "description": "Will return 'pong!'"
+            },
+            "404": {
+                "description": "page not found'"
             }
           }
         }
