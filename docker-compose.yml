@@ -40,3 +40,15 @@ services:
         condition: service_started
     links:
       - questmaker
+
+  swagger:
+    container_name: swagger
+    build:
+      context: ./services/swagger
+    ports:
+      - '8080:8080' # expose ports - HOST:CONTAINER
+    environment:
+      - API_URL=https://raw.githubusercontent.com/GrailFinder/questionnarie/dev/services/swagger/swagger.json
+    depends_on:
+      questmaker:
+        condition: service_started
