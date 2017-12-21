@@ -44,21 +44,13 @@
         }
       },
     "definitions": {
-      "User": {
+      "Inquiry": {
         "type": "object",
         "required": [
-          "username",
-          "email",
-          "password"
+          "title"
         ],
         "properties": {
-          "username": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "password": {
+          "title": {
             "type": "string"
           }
         }
