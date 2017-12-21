@@ -43,18 +43,18 @@
           }
         },
         "post": {
-          "description": "Adds a new user",
+          "description": "Adds a new Inquiry",
           "produces": [
             "application/json"
           ],
           "parameters": [
             {
-              "name": "user",
+              "name": "Inquiry",
               "in": "body",
-              "description": "User to add",
+              "description": "Inquiry to add",
               "required": true,
               "schema": {
-                "$ref": "#/definitions/User"
+                "$ref": "#/definitions/Inquiry"
               }
             }
           ],
@@ -69,131 +69,24 @@
             }
           }
         }
-      },
-      "/users/{id}": {
-        "get": {
-          "description": "Returns a user based on a single user ID",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "ID of user to fetch",
-              "required": true,
-              "type": "integer",
-              "format": "int64"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "user object"
-            }
-          }
-        }
-      },
-      "/auth/register": {
-        "post": {
-          "description": "Creates a new user",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "user",
-              "in": "body",
-              "description": "User to add",
-              "required": true,
-              "schema": {
-                "$ref": "#/definitions/User"
-              }
-            }
-          ],
-          "responses": {
-            "201": {
-              "description": "Successfully registered"
-            }
-          }
-        }
-      },
-      "/auth/login": {
-        "post": {
-          "description": "Logs a user in",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "user",
-              "in": "body",
-              "description": "User to log in",
-              "required": true,
-              "schema": {
-                "$ref": "#/definitions/User"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successfully logged in"
-            }
-          }
-        }
-      },
-      "/auth/status": {
-        "get": {
-          "description": "Returns the logged in user's status",
-          "produces": [
-            "application/json"
-          ],
-          "security": [
-            {
-              "Bearer": []
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "user object"
-            }
-          }
-        }
-      },
-      "/auth/logout": {
-        "get": {
-          "description": "Logs a user out",
-          "produces": [
-            "application/json"
-          ],
-          "security": [
-            {
-              "Bearer": []
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successfully logged out"
-            }
-          }
-        }
       }
     },
     "definitions": {
-      "User": {
+      "Inquiry": {
         "type": "object",
         "required": [
-          "username",
-          "email",
-          "password"
+          "title",
+          "questions",
+          "description"
         ],
         "properties": {
-          "username": {
+          "title": {
             "type": "string"
           },
-          "email": {
-            "type": "string"
+          "questions": {
+            "type": "object"
           },
-          "password": {
+          "description": {
             "type": "string"
           }
         }
