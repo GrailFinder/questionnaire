@@ -42,7 +42,8 @@
             }
           }
         }
-      },
+      }
+    },
     "definitions": {
       "Inquiry": {
         "type": "object",
@@ -57,5 +58,3 @@
       }
     }
 }
-}
-  
