@@ -29,6 +29,9 @@ def recreate_db():
 @manager.command
 def seed_db():
     """get some data in db"""
+
+
+    # first question
     i1 = Inquiry(title="Who are you from the star wars?")
     q1 = Question(title="How was your day, sweety?")
     a1 = Answer("Okay")
@@ -43,6 +46,23 @@ def seed_db():
     db.session.add(q1)
     i1.questions.append(q1)
     db.session.add(i1)
+
+
+    # second question
+    q1 = Question(title="Anyway how is your sex life?")
+    a1 = Answer("You're just a little chicken")
+    a2 = Answer("Its not true, I did not hit her. I did not")
+    a3 = Answer("I am so happy to have you as my best friend and I love Lisa so much")
+    a4 = Answer("If a lot of people would love each other, the world would be a better place to live")
+
+    for a in (a1, a2, a3, a4):
+        db.session.add(a)
+        q1.answers.append(a)
+
+    db.session.add(q1)
+    i1.questions.append(q1)
+    db.session.add(i1)
+
     db.session.commit()
 
 
