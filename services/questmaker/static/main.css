@@ -1,5 +1,6 @@
-button:checked{
-    background-color: #42a5fc;
+.btn-secondary:checked{
+    background-color: #a5d5fd;
+    color: #ff38cd;
 }
 
 .list-group-item:hover{
