@@ -10,6 +10,8 @@ class BaseTestCase(TestCase):
         return app
 
     def setUp(self):
+        db.session.remove()
+        db.drop_all()
         db.create_all()
         db.session.commit()
 

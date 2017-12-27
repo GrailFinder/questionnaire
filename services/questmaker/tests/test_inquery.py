@@ -1,6 +1,6 @@
 import json
 from services.questmaker.tests.base import BaseTestCase
-from utils import add_quest, add_inquiry
+from services.questmaker.tests.utils import add_quest, add_inquiry
 
 class TestinquiryService(BaseTestCase):
     """Tests for the inquiries"""
