@@ -2,7 +2,7 @@ from flask_script import Manager
 import unittest
 import coverage
 from services.questmaker import create_app, db
-from services.questmaker.api.models import Question, Answer, Inquiry
+from services.questmaker.api.models import Question, Answer, Inquiry, User
 
 COV = coverage.coverage(
     branch=True,
@@ -29,6 +29,10 @@ def recreate_db():
 @manager.command
 def seed_db():
     """get some data in db"""
+
+    # user
+    u0 = User(username='grail', email="test@example.com", password='test')
+    db.session.add(u0)
 
 
     # first question
@@ -61,6 +65,7 @@ def seed_db():
 
     db.session.add(q1)
     i1.questions.append(q1)
+    u0.inquiries.append(i1)
     db.session.add(i1)
 
     db.session.commit()
