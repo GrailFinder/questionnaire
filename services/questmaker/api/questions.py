@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, make_response, render_template
 from sqlalchemy import exc
 from services.questmaker.api.models import Question
+from services.questmaker.api.utils import authenticate
 from services.questmaker import db
 
 questions_blueprint = Blueprint('questions', __name__, template_folder='./templates')
@@ -12,8 +13,10 @@ def ping_pong():
         'message': 'pong!'
     })
 
+
 @questions_blueprint.route('/quest', methods=['POST'])
-def add_question():
+@authenticate
+def add_question(resp):
     # get data from request
     post_data = request.get_json()
     if not post_data:

@@ -1,6 +1,6 @@
 import json
 from services.questmaker.tests.base import BaseTestCase
-from services.questmaker.tests.utils import add_quest
+from services.questmaker.tests.utils import add_quest, add_user
 
 class TestQuestionService(BaseTestCase):
     """Tests for the Questions Service."""
@@ -16,13 +16,30 @@ class TestQuestionService(BaseTestCase):
     def test_add_question(self):
         """Ensure that creating new question behaves normal"""
         with self.client:
+
+            user = add_user('test', 'test@test.com', 'test')
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps(dict(
+                    email='test@test.com',
+                    password='test'
+                )),
+                content_type='application/json'
+            )
+
             response = self.client.post(
                 "/quest",
                 data=json.dumps(dict(
                     title="Can you read?"
                 )),
                 content_type='application/json',
+                headers=dict(
+                    Authorization='Bearer ' + json.loads(
+                        resp_login.data.decode()
+                    )['auth_token']
+                )
             )
+            
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
             self.assertIn('success', data['status'])
