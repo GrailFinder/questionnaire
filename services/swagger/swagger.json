@@ -7,8 +7,7 @@
     },
     "host": "104.236.251.23",
     "schemes": [
-        "http",
-        "https"
+        "http"
     ],
     "securityDefinitions": {
         "Bearer": {
@@ -27,9 +26,6 @@
                 "responses": {
                     "200": {
                         "description": "Will return 'pong!'"
-                    },
-                    "404": {
-                        "description": "page not found'"
                     }
                 }
             }
