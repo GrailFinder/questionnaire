@@ -11,11 +11,13 @@
                     {% for answ in quest.answers %}
                         {% if quest.multiansw %}
                             <label class="list-group-item list-group-item-action btn btn-secondary">
-                                <input type="checkbox" autocomplete="off" name=""> {{answ.text}}
+                                <input type="checkbox" name="multiansw" value="{{answ.text}}" autocomplete="off"> {{answ.text}}
+                                <input type="hidden" name="item_id" value="{{ answ.id }}"/>
                             </label>
                         {% else %}
                             <label class="list-group-item list-group-item-action btn btn-secondary">
-                                <input type="radio" autocomplete="off"> {{answ.text}}
+                                <input type="radio" name="radio" value="{{answ.text}}" autocomplete="off"> {{answ.text}}
+                                <input type="hidden" name="item_id" value="{{ answ.id }}"/>
                             </label>
                         {% endif %}
                     {% endfor %}
@@ -23,9 +25,9 @@
             {% endfor %}
         </div>
 
-        <div class="row">
+        <div class="row justify-content-center">
             <div class="col-sm">
-                <button class="btn btn-default" type="submit" style="align:center">Submit</button>
+                <button class="btn btn-success btn-lg" type="submit">Submit</button>
             </div>
         </div>
 
