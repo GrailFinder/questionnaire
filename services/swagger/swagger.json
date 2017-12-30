@@ -188,6 +188,73 @@
                         "description": "inquiry object"
                     }
                 }
+            },
+            "post": {
+                "description": "Adds a new inquiry",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "inquiry",
+                        "in": "body",
+                        "description": "inquiry to add",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Inquiry"
+                        }
+                    }
+                ],
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "inquiry added"
+                    }
+                }
+            }
+        },
+        "/quest": {
+            "get": {
+                "description": "Returns all questions",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "question object"
+                    }
+                }
+            },
+            "post": {
+                "description": "Adds a new question",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "question",
+                        "in": "body",
+                        "description": "question to add",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Question"
+                        }
+                    }
+                ],
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "question added"
+                    }
+                }
             }
         }
     },
@@ -207,6 +274,39 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "Inquiry":{
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "Question": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "Answer": {
+            "type": "object",
+            "required": [
+                "text"
+            ],
+            "properties": {
+                "text": {
                     "type": "string"
                 }
             }

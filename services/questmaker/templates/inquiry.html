@@ -12,12 +12,10 @@
                         {% if quest.multiansw %}
                             <label class="list-group-item list-group-item-action btn btn-secondary">
                                 <input type="checkbox" name="multiansw" value="{{answ.text}}" autocomplete="off"> {{answ.text}}
-                                <input type="hidden" name="item_id" value="{{ answ.id }}"/>
                             </label>
                         {% else %}
                             <label class="list-group-item list-group-item-action btn btn-secondary">
-                                <input type="radio" name="radio" value="{{answ.text}}" autocomplete="off"> {{answ.text}}
-                                <input type="hidden" name="item_id" value="{{ answ.id }}"/>
+                                <input type="radio" name="{{quest.title}}" value="{{answ.text}}" autocomplete="off"> {{answ.text}}
                             </label>
                         {% endif %}
                     {% endfor %}
