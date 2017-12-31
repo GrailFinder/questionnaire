@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, make_response, render_template
 from sqlalchemy import exc
 from services.questmaker.api.models import Inquiry
 from services.questmaker.api.utils import authenticate
-from services.questmaker import db
+from services.questmaker import db, tiny_db
 
 inquiry_blueprint = Blueprint('inquiry', __name__, template_folder='./templates')
 
@@ -97,5 +97,9 @@ def show_inquiry(inquiry_id):
 
 @inquiry_blueprint.route('/front-inq/<inquiry_id>', methods=['POST'])
 def send_inquiry(inquiry_id):
-    print(request.form)
+    tiny_db.insert({inquiry_id: request.form})
     return str(request.form)
+
+@inquiry_blueprint.route('/front-results', methods=['GET'])
+def show_results():
+    return jsonify(tiny_db.all())
