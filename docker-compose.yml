@@ -29,6 +29,28 @@ services:
     links:
       - questmaker-db
 
+  mongo-db:
+    image: mongo:3.0.2
+    healthcheck:
+      test: exit 0
+
+  resultkeeper:
+    container_name: resultkeeper
+    build:
+      context:
+        ./services/resultkeeper
+    ports:
+      - 5002:5000 # expose ports - HOST:CONTAINER
+    depends_on:
+      mongo-db:
+        condition: service_healthy
+      questmaker:
+        condition: service_started
+    links:
+      - mongo-db
+      - questmaker
+
+
   nginx:
     container_name: nginx
     build: ./services/nginx/

@@ -10,5 +10,9 @@ ADD ./requirements.txt /usr/src/app/requirements.txt
 # install requirements
 RUN pip install -r requirements.txt
 
+# add app
+ADD . /usr/src/app
+
 # run server
+RUN echo $(ls)
 CMD python manage.py runserver -h 0.0.0.0
