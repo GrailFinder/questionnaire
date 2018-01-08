@@ -13,6 +13,8 @@ RUN pip install -r requirements.txt
 # add app
 ADD . /usr/src/app
 
+EXPOSE 8000
+
 # run server
 RUN echo $(ls)
-CMD python manage.py runserver -h 0.0.0.0
+CMD nameko run --config config.yml project.service

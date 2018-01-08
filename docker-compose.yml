@@ -40,15 +40,28 @@ services:
       context:
         ./services/resultkeeper
     ports:
-      - 5002:5000 # expose ports - HOST:CONTAINER
+      - 8001:8000 # expose ports - HOST:CONTAINER
     depends_on:
       mongo-db:
         condition: service_healthy
       questmaker:
         condition: service_started
+      rabbit:
+        condition: service_started
     links:
+      - rabbit
       - mongo-db
       - questmaker
+    environment:
+        DB_PASSWORD: "password"
+        DB_USER: "postgres"
+        DB_HOST: "postgres"
+        DB_NAME: "orders"
+        RABBIT_PASSWORD: "guest"
+        RABBIT_USER: "guest"
+        RABBIT_HOST: "rabbit"
+        RABBIT_PORT: "5672"
+        RABBIT_MANAGEMENT_PORT: "15672"
 
 
   nginx:
@@ -76,7 +89,7 @@ services:
         condition: service_started
 
   rabbit:
-    container_name: nameko-example-rabbitmq
+    container_name: rabbit
     image: rabbitmq:3.6-management
     ports:
         - "15672:15672"
