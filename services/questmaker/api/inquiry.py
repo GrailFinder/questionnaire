@@ -6,6 +6,8 @@ from services.questmaker import db, tiny_db
 import json
 
 
+from nameko.standalone.rpc import ClusterRpcProxy
+
 inquiry_blueprint = Blueprint('inquiry', __name__, template_folder='./templates')
 
 

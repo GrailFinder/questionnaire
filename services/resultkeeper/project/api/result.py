@@ -1,15 +1,9 @@
-from flask import request, Blueprint
+from nameko.rpc import rpc, RpcProxy
 from project import mongo
 
-result_blueprint = Blueprint('result', __name__)
+class ServiceX:
+    name = "service_x"
 
-
-@result_blueprint.route("/results", methods=['POST', 'GET'])
-def results():
-    if request.method == "POST":
-        post_data = request.get_json()
-        mongo.db.insert(post_data)
-        return post_data
-
-    else:
-        return "hello there"
+    @rpc
+    def write_to_mongo(self, value):
+        return "get from flask {}, okay".format(value)

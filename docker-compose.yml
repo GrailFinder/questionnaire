@@ -74,3 +74,10 @@ services:
     depends_on:
       questmaker:
         condition: service_started
+
+  rabbit:
+    container_name: nameko-example-rabbitmq
+    image: rabbitmq:3.6-management
+    ports:
+        - "15672:15672"
+    restart: always
