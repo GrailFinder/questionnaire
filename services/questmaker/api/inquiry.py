@@ -6,7 +6,7 @@ from services.questmaker import db, tiny_db
 import json
 
 
-from nameko.rpc import RpcProxy
+from nameko.standalone.rpc import ClusterRpcProxy
 
 inquiry_blueprint = Blueprint('inquiry', __name__, template_folder='./templates')
 
@@ -101,8 +101,9 @@ def show_inquiry(inquiry_id):
 
 @inquiry_blueprint.route('/front-inq/<inquiry_id>', methods=['POST'])
 def send_inquiry(inquiry_id):
-    service_x = RpcProxy("rpc-service_x")
-    data = service_x.write_to_mongo(request.form)
+    config = {'AMQP_URI': 'amqp://guest:guest@localhost:5672/'}
+    with ClusterRpcProxy(config) as cluster_rpc:
+        data = cluster_rpc.service_x.write_to_mongo(request.form)
     return str(data)
 
 @inquiry_blueprint.route('/front-results', methods=['GET'])

@@ -1,4 +1,4 @@
-from nameko.rpc import rpc, RpcProxy
+from nameko.rpc import rpc
 
 class ServiceX:
     name = "service_x"
