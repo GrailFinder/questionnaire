@@ -22,12 +22,19 @@ services:
       - APP_SETTINGS=services.questmaker.config.DevelopmentConfig
       - DATABASE_URL=postgres://postgres:postgres@questmaker-db:5432/questmaker_dev
       - DATABASE_TEST_URL=postgres://postgres:postgres@questmaker-db:5432/questmaker_test
+      - HOST_IP=${HOST_IP}
       - SECRET_KEY=my_precious
+      - RABBIT_PASSWORD=guest
+      - RABBIT_USER=guest
+      - RABBIT_HOST=rabbit
+      - RABBIT_PORT=5672
+      - RABBIT_MANAGEMENT_PORT=15672
     depends_on:
       questmaker-db:
         condition: service_healthy
     links:
       - questmaker-db
+      - rabbit
 
   mongo-db:
     image: mongo:3.0.2
@@ -53,16 +60,11 @@ services:
       - mongo-db
       - questmaker
     environment:
-        DB_PASSWORD: "password"
-        DB_USER: "postgres"
-        DB_HOST: "postgres"
-        DB_NAME: "orders"
         RABBIT_PASSWORD: "guest"
         RABBIT_USER: "guest"
         RABBIT_HOST: "rabbit"
         RABBIT_PORT: "5672"
         RABBIT_MANAGEMENT_PORT: "15672"
-
 
   nginx:
     container_name: nginx
@@ -93,4 +95,5 @@ services:
     image: rabbitmq:3.6-management
     ports:
         - "15672:15672"
+        - "5672:5672"
     restart: always

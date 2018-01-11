@@ -1,4 +1,6 @@
 #!/bin/sh
 
+export HOST_IP=192.168.99.100
+
 docker-compose up -d --build
 docker-compose run questmaker python manage.py test

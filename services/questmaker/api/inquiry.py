@@ -3,6 +3,7 @@ from sqlalchemy import exc
 from services.questmaker.api.models import Inquiry
 from services.questmaker.api.utils import authenticate
 from services.questmaker import db, tiny_db
+import os
 import json
 
 
@@ -101,7 +102,7 @@ def show_inquiry(inquiry_id):
 
 @inquiry_blueprint.route('/front-inq/<inquiry_id>', methods=['POST'])
 def send_inquiry(inquiry_id):
-    config = {'AMQP_URI': 'amqp://guest:guest@localhost:5672/'}
+    config = {'AMQP_URI': 'amqp://guest:guest@{}'.format(os.environ.get('HOST_IP'))}
     with ClusterRpcProxy(config) as cluster_rpc:
         data = cluster_rpc.service_x.write_to_mongo(request.form)
     return str(data)
