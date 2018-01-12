@@ -9,10 +9,6 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 
-# tiny db
-from tinydb import TinyDB, Query
-tiny_db = TinyDB('db.json')
-
 def create_app():
 
     # init app

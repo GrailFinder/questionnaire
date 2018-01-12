@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, make_response, render_template, c
 from sqlalchemy import exc
 from services.questmaker.api.models import Inquiry
 from services.questmaker.api.utils import authenticate
-from services.questmaker import db, tiny_db
+from services.questmaker import db
 import os
 import json
 
@@ -11,6 +11,7 @@ from nameko.standalone.rpc import ClusterRpcProxy
 
 inquiry_blueprint = Blueprint('inquiry', __name__, template_folder='./templates')
 
+config = {'AMQP_URI': 'amqp://guest:guest@{}'.format(os.environ.get('HOST_IP'))}
 
 @inquiry_blueprint.route('/inquiries', methods=['POST'])
 @authenticate
@@ -102,11 +103,12 @@ def show_inquiry(inquiry_id):
 
 @inquiry_blueprint.route('/front-inq/<inquiry_id>', methods=['POST'])
 def send_inquiry(inquiry_id):
-    config = {'AMQP_URI': 'amqp://guest:guest@{}'.format(os.environ.get('HOST_IP'))}
     with ClusterRpcProxy(config) as cluster_rpc:
-        data = cluster_rpc.service_x.write_to_mongo(request.form)
-    return str(data)
+        data = cluster_rpc.service_x.insert_one({"inq_id": inquiry_id, **request.form})
+    return data
 
 @inquiry_blueprint.route('/front-results', methods=['GET'])
 def show_results():
-    return jsonify(tiny_db.all())
+    with ClusterRpcProxy(config) as cluster_rpc:
+        data = cluster_rpc.service_x.find()
+    return jsonify(data)

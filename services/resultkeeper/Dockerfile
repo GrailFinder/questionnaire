@@ -16,5 +16,4 @@ ADD . /usr/src/app
 EXPOSE 8000
 
 # run server
-RUN echo $(ls)
 CMD nameko run --config config.yml project.service

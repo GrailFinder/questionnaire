@@ -65,6 +65,7 @@ services:
         RABBIT_HOST: "rabbit"
         RABBIT_PORT: "5672"
         RABBIT_MANAGEMENT_PORT: "15672"
+        MONGO_URL: "mongodb://mongo-db:27017/resultkeeper_dev"
 
   nginx:
     container_name: nginx

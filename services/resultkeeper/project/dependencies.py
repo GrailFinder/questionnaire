@@ -4,6 +4,7 @@ import datetime
 from pymongo import MongoClient
 from nameko.extensions import DependencyProvider
 from nameko.exceptions import safe_for_serialization
+import os
 
 
 
@@ -14,27 +15,21 @@ class MongoDatabase(DependencyProvider):
         self.logs = WeakKeyDictionary()
         
     def setup(self):
-        conn_uri = self.container.config['MONGODB_CONNECTION_URL']
 
-        self.client = MongoClient(conn_uri)
+        self.client = MongoClient(os.environ.get("MONGO_URL"))
 
-        self.database = self.client[self.container.service_name]
-
-        if 'MONGODB_USER' in self.container.config and self.container.config['MONGODB_USER'] != "":
-            self.database.authenticate(self.container.config['MONGODB_USER'],
-                                       self.container.config['MONGODB_PASSWORD'],
-                                       source=self.container.config['MONGODB_AUTHENTICATION_BASE'])
+        self.db = self.client.answers
 
         if self.result_backend:
-            self.database.logging.create_index('start', expireAfterSeconds=24*60*60)
-            self.database.logging.create_index('call_id')
+            self.db.logging.create_index('start', expireAfterSeconds=24*60*60)
+            self.db.logging.create_index('call_id')
 
     def stop(self):
         self.client.close()
         del self.client
 
     def get_dependency(self, worker_ctx):
-        return self.database
+        return self.db
     
     def worker_setup(self, worker_ctx):
         if self.result_backend:
@@ -44,7 +39,7 @@ class MongoDatabase(DependencyProvider):
             method_name = worker_ctx.entrypoint.method_name
             call_id = worker_ctx.call_id
 
-            self.database.logging.insert_one(
+            self.db.logging.insert_one(
                 {
                     'call_id': call_id,
                     'service_name': service_name,
@@ -67,7 +62,7 @@ class MongoDatabase(DependencyProvider):
 
             start = self.logs.pop(worker_ctx)
 
-            self.database.logging.update_one(
+            self.db.logging.update_one(
                 {'call_id': call_id},
                 {
                     '$set': {
@@ -77,4 +72,4 @@ class MongoDatabase(DependencyProvider):
                         'exception': safe_for_serialization(exc_info) if exc_info is not None else None
                     }
                 }
-)
+            )
