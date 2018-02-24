@@ -1,15 +1,27 @@
-# questionnaire [![Build Status](https://travis-ci.org/GrailFinder/questionnaire.svg?branch=dev)](https://travis-ci.org/GrailFinder/questionnaire)
+# Ankete (croatian for questionnarie) [![Build Status](https://travis-ci.org/GrailFinder/questionnaire.svg?branch=dev)](https://travis-ci.org/GrailFinder/questionnaire)
 
-### Part one would be maker of ankete (questionnaire is too long, we need another word for this)
+Service where users can create inquiries and track answers on them.
+One does not need to became user in order to pass a questionnaire.
+
+## Project structure (hooray for microservices)
+
+### Questmaker: service that contains api for creation inquiries, questions, answers and showing them to user
 - api structure
 - sql db (postgres coz its the best)
 - does it need user registration?
 
-### Part two should be dealing with answers that users would be giving
-- no sql (tiny db?)
-- logic where data gets scaled cleaned in proper form.
-- some analysis
+### ResultKeeper: service that keeps result (answers). Can recieve and return answers through rpc (nameko).
+- mongo db
+- logic where data gets scaled cleaned in proper form
+- some analysis (maybe will be moved in analyser service)
 
-### Part three about graphics and visuals
+### Front: service about graphics and visuals
 - charts.js?
 - react.js?
+
+### Swagger: documentation (for questmaker)
+- http://104.236.251.23:8080/
+
+### Services registration and communication:
+- nameko (https://nameko.readthedocs.io/en/stable/)
+- rabbitmq
