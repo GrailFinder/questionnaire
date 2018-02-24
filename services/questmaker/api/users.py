@@ -95,3 +95,21 @@ def get_all_users():
     }
     return make_response(jsonify(response_object)), 200
 
+
+
+### bootstrap front
+
+@users_blueprint.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == "GET":
+        return render_template('reg.html')
+    elif request.method == "POST":
+        return str(request.form)
+
+
+@users_blueprint.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == "GET":
+        return render_template('login.html')
+    elif request.method == "POST":
+        return str(request.form)
