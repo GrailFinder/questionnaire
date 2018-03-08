@@ -98,3 +98,6 @@ services:
         - "15672:15672"
         - "5672:5672"
     restart: always
+    networks:
+      default:
+        ipv4_address: 172.21.0.4

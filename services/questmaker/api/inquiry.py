@@ -11,7 +11,8 @@ from nameko.standalone.rpc import ClusterRpcProxy
 
 inquiry_blueprint = Blueprint('inquiry', __name__, template_folder='./templates')
 
-config = {'AMQP_URI': 'amqp://guest:guest@{}'.format(os.environ.get('HOST_IP'))}
+#config = {'AMQP_URI': 'amqp://guest:guest@{}'.format(os.environ.get('HOST_IP'))}
+config = {'AMQP_URI': "pyamqp://guest:guest@172.21.0.4"}
 
 @inquiry_blueprint.route('/inquiries', methods=['POST'])
 @authenticate
