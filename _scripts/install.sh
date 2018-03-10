@@ -8,8 +8,3 @@ rm id_rsa.enc # Don't need it anymore
 chmod 600 id_rsa
 mv id_rsa ~/.ssh/id_rsa
 ssh-add ~/.ssh/id_rsa
-sudo rm /usr/local/bin/docker-compose
-curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
-  -s`-`uname -m` > docker-compose
-chmod +x docker-compose
-sudo mv docker-compose /usr/local/bin
