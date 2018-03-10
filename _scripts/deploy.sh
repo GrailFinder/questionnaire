@@ -2,7 +2,6 @@
 set -x
 if [ $TRAVIS_BRANCH == 'master' ] ; then
     # Initialize a new git repo in _site, and push it to our server.
-    cd _site
     git init
         
     git remote add deploy "grail@159.65.124.54:/var/www/ankete"
