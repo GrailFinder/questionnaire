@@ -6,13 +6,13 @@ if [ $TRAVIS_BRANCH == 'master' ] ; then
         
     git remote add deploy "deploy@159.65.124.54:/var/www/ankete"
     git remote add old "https://github.com/GrailFinder/questionnaire.git"
+    git fetch --unshallow old
     git config user.name "Travis CI"
     git config user.email "GrailFinder+travisCI@gmail.com"
     ls -la
     git add .
     git commit -m "Deploy"
-    git fetch --unshallow old
-    git push --force deploy master
+    git push deploy master
 else
     echo "Not deploying, since this branch isn't master."
 fi
