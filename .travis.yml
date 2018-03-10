@@ -4,6 +4,8 @@ services:
 - docker
 env:
 - DOCKER_COMPOSE_VERSION=1.16.1
+addons:
+  ssh_known_hosts: 159.65.124.54
 before_script:
 - bash _scripts/install.sh
 script:
