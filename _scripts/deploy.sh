@@ -4,7 +4,7 @@ if [ $TRAVIS_BRANCH == 'master' ] ; then
     # Initialize a new git repo in _site, and push it to our server.
     git init
         
-    git remote add deploy "grail@159.65.124.54:/var/www/ankete"
+    git remote add deploy "deploy@159.65.124.54:/var/www/ankete"
     git config user.name "Travis CI"
     git config user.email "GrailFinder+travisCI@gmail.com"
     
