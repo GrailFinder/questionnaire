@@ -20,7 +20,7 @@ One does not need to became user in order to pass a questionnaire.
 - react.js?
 
 ### Swagger: documentation (for questmaker)
-- http://104.236.251.23:8080/
+- http://159.65.124.54:8080/
 
 ### Services registration and communication:
 - nameko (https://nameko.readthedocs.io/en/stable/)
