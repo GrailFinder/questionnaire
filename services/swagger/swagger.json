@@ -5,7 +5,7 @@
         "title": "questmaker",
         "description": "Swagger spec for documenting the questmaker"
     },
-    "host": "104.236.251.23",
+    "host": "159.65.124.54",
     "schemes": [
         "http"
     ],
