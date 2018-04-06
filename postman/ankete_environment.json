@@ -1,0 +1,27 @@
+{
+  "id": "89e8bf04-f9a7-df41-e0b2-58b834cb2789",
+  "name": "ankete",
+  "values": [
+    {
+      "enabled": true,
+      "key": "api",
+      "value": "http://127.0.0.1:5001",
+      "type": "text"
+    },
+    {
+      "enabled": true,
+      "key": "username",
+      "value": "grail",
+      "type": "text"
+    },
+    {
+      "enabled": true,
+      "key": "password",
+      "value": "test",
+      "type": "text"
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2018-04-06T16:42:33.297Z",
+  "_postman_exported_using": "Postman/6.0.10"
+}

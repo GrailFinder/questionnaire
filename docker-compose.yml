@@ -40,6 +40,8 @@ services:
 
   mongo-db:
     image: mongo:3.0.2
+    ports: 
+      - 27017:27017
     healthcheck:
       test: exit 0
 

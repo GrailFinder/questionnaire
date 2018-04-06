@@ -4,4 +4,4 @@ export HOST_IP='192.168.99.100'
 export HOST_IP='127.0.0.1'
 
 docker-compose up -d --build
-docker-compose run questmaker python manage.py test
+#docker-compose run questmaker python manage.py test
