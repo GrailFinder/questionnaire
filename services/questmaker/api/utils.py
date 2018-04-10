@@ -1,7 +1,7 @@
 from functools import wraps
 
 from flask import request, jsonify
-import uuid
+import uuid, sys
 from services.questmaker.api.models import User
 
 
@@ -14,6 +14,7 @@ def authenticate(f):
         }
         code = 401
         auth_header = request.headers.get('Authorization')
+        print(request, file=sys.stdout)
         if not auth_header:
             response_object['message'] = 'Provide a valid auth token.'
             code = 403
@@ -22,7 +23,8 @@ def authenticate(f):
         resp = User.decode_auth_token(auth_token)
         try:
             uuid.UUID(resp).hex  # parse 'uuid' to uuid
-        except ValueError:
+        except ValueError as e:
+            print(e, file=sys.stderr)
             response_object = {
                 'status': 'error',
                 'message': resp

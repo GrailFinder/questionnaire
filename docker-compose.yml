@@ -39,6 +39,7 @@ services:
     restart: always
 
   mongo-db:
+    container_name: mongo_db
     image: mongo:3.0.2
     ports: 
       - 27017:27017
@@ -105,3 +106,14 @@ services:
         - "15672:15672"
         - "5672:5672"
     restart: always
+
+  newman:
+    image: postman/newman_ubuntu1404
+    container_name: newman
+    command: run /postman/ankete_collection.json -e /postman/ankete_environment.json
+    depends_on:
+      - questmaker
+      #- migrate
+    volumes:
+      - ./postman:/postman
+    restart: on-failure

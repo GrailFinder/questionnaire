@@ -40,9 +40,20 @@
 						{
 							"listen": "test",
 							"script": {
+								"id": "2a147ec9-64b6-4ab0-b633-f8bb1ee33ce0",
 								"type": "text/javascript",
 								"exec": [
-									"tests[\"status code is 200\"] = responseCode.code === 200;"
+									"tests[\"status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var json = JSON.parse(responseBody);",
+									"if (json.jwt !== \"\") {",
+									"    postman.setEnvironmentVariable(\"jwt\", json.auth_token);",
+									"}",
+									"if(responseCode.code !== 200)",
+									"{",
+									"    console.log(json.error);",
+									"    console.log(JSON.stringify(request.data));",
+									"}"
 								]
 							}
 						}
@@ -91,6 +102,12 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt}}"
+							}
+						},
 						"method": "POST",
 						"header": [
 							{
