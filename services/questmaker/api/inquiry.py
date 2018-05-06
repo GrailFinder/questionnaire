@@ -46,6 +46,7 @@ def add_inquiry(resp):
             }
             return make_response(jsonify(response_object)), 400
     except (exc.IntegrityError, ValueError) as e:
+        current_app.logger.info(e)
         db.session().rollback()
         response_object = {
             'status': 'fail',

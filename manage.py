@@ -3,6 +3,7 @@ import unittest
 import coverage
 from services.questmaker import create_app, db
 from services.questmaker.api.models import Question, Answer, Inquiry, User
+from flask import current_app
 
 COV = coverage.coverage(
     branch=True,
@@ -90,7 +91,7 @@ def cov():
     if result.wasSuccessful():
         COV.stop()
         COV.save()
-        print('Coverage Summary:')
+        current_app.logger.info('Coverage Summary:')
         COV.report()
         COV.html_report()
         COV.erase()

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from sqlalchemy import exc, or_
 import uuid
 
@@ -90,7 +90,7 @@ def login_user():
             }
             return jsonify(response_object), 404
     except Exception as e:
-        print(e)
+        current_app.logger.info(e)
         response_object = {
             'status': 'error',
             'message': 'Try again.'
