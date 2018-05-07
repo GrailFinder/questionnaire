@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, request, make_response, render_template, current_app
+from flask import Blueprint, jsonify, request, make_response, render_template, current_app, abort
+from flask_restful import Resource, fields, marshal_with
 from sqlalchemy import exc
 from services.questmaker.api.models import Inquiry
 from services.questmaker.api.utils import authenticate
@@ -114,3 +115,37 @@ def show_results():
     with ClusterRpcProxy(config) as cluster_rpc:
         data = cluster_rpc.service_x.find()
     return jsonify(data)
+
+
+question_fields = {
+    'id': fields.String,
+    'title': fields.String,
+    'created_at': fields.DateTime,
+    'multiansw': fields.Boolean,
+}
+
+resourse_fields = {
+    'id': fields.String,
+    'title': fields.String,
+    'created_at': fields.DateTime,
+    'description': fields.String,
+    'questions': fields.List(fields.Nested(question_fields))
+}
+
+class InquiryRoute(Resource):
+    @marshal_with(resourse_fields)
+    def get(self, inquiry_id):
+        inq = Inquiry.query.filter_by(id=inquiry_id).first()
+        if not inq:
+            return abort(404)
+        return inq
+
+    @authenticate
+    def delete(self, inquiry_id):
+        Inquiry.query.delete(id=inquiry_id)
+
+    
+# class InquiryListRoute(Resource):
+#     @marshal_with(resource_fields)
+#     def get(self):
+#         return Inquiry.query.all().all()

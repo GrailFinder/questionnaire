@@ -25,11 +25,6 @@ services:
       - DATABASE_TEST_URL=postgres://postgres:postgres@questmaker-db:5432/questmaker_test
       - HOST_IP=${HOST_IP}
       - SECRET_KEY=my_precious
-      - RABBIT_PASSWORD=guest
-      - RABBIT_USER=guest
-      - RABBIT_HOST=rabbit
-      - RABBIT_PORT=5672
-      - RABBIT_MANAGEMENT_PORT=15672
     depends_on:
       questmaker-db:
         condition: service_healthy

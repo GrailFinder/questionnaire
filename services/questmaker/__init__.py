@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_restful import Api
 import os
 
 
@@ -19,6 +20,7 @@ def create_app():
 
     db.init_app(app)
     bcrypt.init_app(app)
+    api = Api(app)
 
     # register blueprint
     from services.questmaker.api.questions import questions_blueprint
@@ -32,6 +34,9 @@ def create_app():
     app.register_blueprint(inquiry_blueprint)
     app.register_blueprint(users_blueprint)
     app.register_blueprint(auth_blueprint)
+
+    from services.questmaker.api.inquiry import InquiryRoute
+    api.add_resource(InquiryRoute, '/iii/<inquiry_id>')
 
     return app
 

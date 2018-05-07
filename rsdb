@@ -1,4 +1,5 @@
 #!/bin/sh
 
-docker-compose run questmaker python manage.py recreate_db
-docker-compose run questmaker python manage.py seed_db
+docker-compose up -d --build
+docker-compose exec questmaker python manage.py recreate_db
+docker-compose exec questmaker python manage.py seed_db

@@ -4,6 +4,7 @@ import coverage
 from services.questmaker import create_app, db
 from services.questmaker.api.models import Question, Answer, Inquiry, User
 from flask import current_app
+from flask_restful import Api
 
 COV = coverage.coverage(
     branch=True,

@@ -7,3 +7,4 @@ coverage==4.4.1
 flask-bcrypt==0.7.1
 pyjwt==1.5.0
 nameko
+flask_restful
