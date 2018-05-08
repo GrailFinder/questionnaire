@@ -1,4 +1,4 @@
-FROM python:3.6.1
+FROM python:3.6
 
 # set working directory
 RUN mkdir -p /usr/src/app

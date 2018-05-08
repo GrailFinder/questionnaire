@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response, render_template, current_app, abort
-from flask_restful import Resource, fields, marshal_with
+from flask_restful import Resource, fields, marshal_with, reqparse
 from sqlalchemy import exc
 from services.questmaker.api.models import Inquiry
 from services.questmaker.api.utils import authenticate
@@ -132,6 +132,8 @@ resourse_fields = {
     'questions': fields.List(fields.Nested(question_fields))
 }
 
+parser = reqparse.RequestParser()
+
 class InquiryRoute(Resource):
     @marshal_with(resourse_fields)
     def get(self, inquiry_id):
@@ -145,7 +147,37 @@ class InquiryRoute(Resource):
         Inquiry.query.delete(id=inquiry_id)
 
     
-# class InquiryListRoute(Resource):
-#     @marshal_with(resource_fields)
-#     def get(self):
-#         return Inquiry.query.all().all()
+class InquiryListRoute(Resource):
+    @marshal_with(resourse_fields)
+    def get(self):
+        return Inquiry.query.all().all()
+    
+    @marshal_with(resourse_fields)
+    def post(self):
+        args = parser.parse_args()
+        title = args.get('title')
+
+        try:
+            inquiry = Inquiry.query.filter_by(title=title).first()
+            if not inquiry: # if there was no such inquiry in db
+                id = uuid.uuid1()
+                db.session.add(Inquiry(title=title, id=id))
+                db.session.commit()
+                response_object = {
+                    'id': id,
+                }
+                return make_response(jsonify(response_object)), 201
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'That inquiry already exists.'
+                }
+                return make_response(jsonify(response_object)), 400
+        except (exc.IntegrityError, ValueError) as e:
+            current_app.logger.info(e)
+            db.session().rollback()
+            response_object = {
+                'status': 'fail',
+                'message': 'Invalid payload.'
+            }
+            return make_response(jsonify(response_object)), 400

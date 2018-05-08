@@ -75,8 +75,9 @@ class Inquiry(db.Model): # Опросник
     description = db.Column(db.Text, nullable=True)
     questions = db.relationship("Question", secondary=questgroup, backref=db.backref('inquiry', lazy='dynamic'))
 
-    def __init__(self, title, description=None, created_at=datetime.datetime.now()):
-        self.id = str(uuid.uuid1())
+    def __init__(self, title, description=None, created_at=datetime.datetime.now(), id=None):
+        if not id:
+            self.id = str(uuid.uuid1())
         self.title = title
         self.created_at = created_at
         self.description = description
