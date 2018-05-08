@@ -4,7 +4,7 @@ from sqlalchemy import exc
 from services.questmaker.api.models import Inquiry
 from services.questmaker.api.utils import authenticate
 from services.questmaker import db
-import os, sys
+import os, sys, uuid
 import json
 
 
@@ -128,11 +128,13 @@ resourse_fields = {
     'id': fields.String,
     'title': fields.String,
     'created_at': fields.DateTime,
+    'updated_at': fields.DateTime,
     'description': fields.String,
     'questions': fields.List(fields.Nested(question_fields))
 }
 
 parser = reqparse.RequestParser()
+parser.add_argument('title')
 
 class InquiryRoute(Resource):
     @marshal_with(resourse_fields)
@@ -150,29 +152,32 @@ class InquiryRoute(Resource):
 class InquiryListRoute(Resource):
     @marshal_with(resourse_fields)
     def get(self):
-        return Inquiry.query.all().all()
+        return Inquiry.query.all()
     
-    @marshal_with(resourse_fields)
+    #@marshal_with(resourse_fields)
     def post(self):
-        args = parser.parse_args()
-        title = args.get('title')
+        #args = parser.parse_args()
+        post_data = request.get_json()
+        title = post_data.get('title')
+        current_app.logger.info(f"post title: {title}")
 
         try:
             inquiry = Inquiry.query.filter_by(title=title).first()
             if not inquiry: # if there was no such inquiry in db
-                id = uuid.uuid1()
+                id = str(uuid.uuid1())
+                current_app.logger.info(f"going to make response: {id}")
                 db.session.add(Inquiry(title=title, id=id))
                 db.session.commit()
                 response_object = {
                     'id': id,
                 }
-                return make_response(jsonify(response_object)), 201
+                return response_object, 201
             else:
                 response_object = {
                     'status': 'fail',
                     'message': 'That inquiry already exists.'
                 }
-                return make_response(jsonify(response_object)), 400
+                return response_object, 400
         except (exc.IntegrityError, ValueError) as e:
             current_app.logger.info(e)
             db.session().rollback()
@@ -180,4 +185,4 @@ class InquiryListRoute(Resource):
                 'status': 'fail',
                 'message': 'Invalid payload.'
             }
-            return make_response(jsonify(response_object)), 400
+            return 400, 400

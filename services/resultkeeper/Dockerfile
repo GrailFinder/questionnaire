@@ -1,5 +1,7 @@
 FROM python:3.6
 
+ENV PYTHONUNBUFFERED 1
+
 # set working directory
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
