@@ -36,8 +36,8 @@ def create_app():
     app.register_blueprint(auth_blueprint)
 
     from services.questmaker.api.inquiry import InquiryRoute, InquiryListRoute
-    api.add_resource(InquiryRoute, '/iii/<inquiry_id>')
-    api.add_resource(InquiryListRoute, '/inq-list/')
+    api.add_resource(InquiryRoute, '/inq/<inquiry_id>')
+    api.add_resource(InquiryListRoute, '/inqs/')
 
     return app
 
