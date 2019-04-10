@@ -2,7 +2,7 @@ from flask_script import Manager
 import unittest
 import coverage
 from services.questmaker import create_app, db
-from services.questmaker.api.models import Question, Answer, Inquiry, User
+from services.questmaker.api.models import Question, Answer, Inquiry, User, Choice
 from flask import current_app
 from flask_restful import Api
 
@@ -40,14 +40,14 @@ def seed_db():
     # first question
     i1 = Inquiry(title="Who are you from the star wars?")
     q1 = Question(title="How was your day, sweety?")
-    a1 = Answer("Okay")
-    a2 = Answer("Good")
-    a3 = Answer("Bad")
-    a4 = Answer("Who are you again?")
+    a1 = Choice("Okay")
+    a2 = Choice("Good")
+    a3 = Choice("Bad")
+    a4 = Choice("Who are you again?")
 
     for a in (a1, a2, a3, a4):
         db.session.add(a)
-        q1.answers.append(a)
+        q1.choices.append(a)
 
     db.session.add(q1)
     i1.questions.append(q1)
@@ -56,14 +56,14 @@ def seed_db():
 
     # second question
     q1 = Question(title="Anyway how is your sex life?")
-    a1 = Answer("You're just a little chicken")
-    a2 = Answer("Its not true, I did not hit her. I did not")
-    a3 = Answer("I am so happy to have you as my best friend and I love Lisa so much")
-    a4 = Answer("If a lot of people would love each other, the world would be a better place to live")
+    a1 = Choice("You're just a little chicken")
+    a2 = Choice("Its not true, I did not hit her. I did not")
+    a3 = Choice("I am so happy to have you as my best friend and I love Lisa so much")
+    a4 = Choice("If a lot of people would love each other, the world would be a better place to live")
 
     for a in (a1, a2, a3, a4):
         db.session.add(a)
-        q1.answers.append(a)
+        q1.choices.append(a)
 
     db.session.add(q1)
     i1.questions.append(q1)

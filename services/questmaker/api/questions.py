@@ -56,8 +56,8 @@ def add_question(resp):
 @questions_blueprint.route('/quest', methods=['GET'])
 def show_all():
     questions = Question.query.all()
-    data_list = [{'id': q.id, 'title': q.title, 'created_at': q.created_at, 'multiansw': q.multiansw,
-     'answers': [a.text for a in q.answers]} for q in questions]
+    data_list = [{'id': q.id, 'title': q.title, 'created_at': q.created_at, 'multichoice': q.multichoice,
+     'choices': [a.text for a in q.choices]} for q in questions]
 
     response_object = {
         'status': 'success',
@@ -84,7 +84,7 @@ def get_single_quest(quest_id):
                     'id': quest.id,
                     'title': quest.title,
                     'created_at': quest.created_at,
-                    'answers': ["{}:{}".format(a.id, a.text) for a in quest.answers]
+                    'choices': ["{}:{}".format(a.id, a.text) for a in quest.choices]
                 }
             }
             return make_response(jsonify(response_object)), 200

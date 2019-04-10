@@ -7,9 +7,6 @@ from services.questmaker import db
 import os, sys, uuid
 import json
 
-
-from nameko.standalone.rpc import ClusterRpcProxy
-
 inquiry_blueprint = Blueprint('inquiry', __name__, template_folder='./templates')
 
 #config = {'AMQP_URI': 'amqp://guest:guest@{}'.format(os.environ.get('HOST_IP'))}
@@ -104,24 +101,13 @@ def show_inquiry(inquiry_id):
     inquiry = Inquiry.query.filter_by(id=inquiry_id).first()
     return render_template('inquiry.html', questions=inquiry.questions)
 
-@inquiry_blueprint.route('/front-inq/<inquiry_id>', methods=['POST'])
-def send_inquiry(inquiry_id):
-    with ClusterRpcProxy(config) as cluster_rpc:
-        data = cluster_rpc.service_x.insert_one({"inq_id": inquiry_id, **request.form})
-    return data
-
-@inquiry_blueprint.route('/front-results', methods=['GET'])
-def show_results():
-    with ClusterRpcProxy(config) as cluster_rpc:
-        data = cluster_rpc.service_x.find()
-    return jsonify(data)
 
 
 question_fields = {
     'id': fields.String,
     'title': fields.String,
     'created_at': fields.DateTime,
-    'multiansw': fields.Boolean,
+    'multichoice': fields.Boolean,
 }
 
 resourse_fields = {

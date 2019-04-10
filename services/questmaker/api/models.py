@@ -4,9 +4,9 @@ from flask import current_app
 import jwt
 
 
-answbond = db.Table("answbond",
+choicebond = db.Table("choicebond",
     db.Column('questions', db.String(128), db.ForeignKey('questions.id'), primary_key=True),
-    db.Column('answers', db.String(128), db.ForeignKey('answers.id'), primary_key=True)
+    db.Column('choices', db.String(128), db.ForeignKey('choices.id'), primary_key=True)
 )
 
 questgroup = db.Table("questgroup",
@@ -93,20 +93,20 @@ class Question(db.Model):
     id = db.Column(db.String(128), nullable=False, primary_key=True)
     title = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
-    multiansw = db.Column(db.Boolean)
-    answers = db.relationship("Answer", secondary=answbond, backref=db.backref('question', lazy='dynamic'))
+    multichoice = db.Column(db.Boolean)
+    choices = db.relationship("Choice", secondary=choicebond, backref=db.backref('question', lazy='dynamic'))
 
-    def __init__(self, title, multiansw=False, created_at=datetime.datetime.now()):
+    def __init__(self, title, multichoice=False, created_at=datetime.datetime.now()):
         self.id = str(uuid.uuid1())
         self.title = title
         self.created_at = created_at
-        self.multiansw = multiansw
+        self.multichoice = multichoice
 
     def __str__(self):
         return f'{self.title}: {self.id}'
 
-class Answer(db.Model):
-    __tablename__ = "answers"
+class Choice(db.Model):
+    __tablename__ = "choices"
     id = db.Column(db.String(128), nullable=False, primary_key=True)
     text = db.Column(db.Text, nullable=False)
     value = db.Column(db.Integer, nullable=True)
@@ -120,3 +120,11 @@ class Answer(db.Model):
 
     def __str__(self):
         return f'{self.title}: {self.id}'
+
+class Answer(db.Model):
+    __tablename__ = "answers"
+    id = db.Column(db.String(128), nullable=False, primary_key=True)
+    choice = db.Column(db.String(128), db.ForeignKey('choices.id'), nullable=False)
+    question = db.Column(db.String(128), db.ForeignKey('questions.id'), nullable=False)
+    inq = db.Column(db.String(128), db.ForeignKey('inquiries.id'), nullable=False)
+    user = db.Column(db.String(128), db.ForeignKey('users.id'), nullable=True)

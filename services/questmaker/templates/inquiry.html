@@ -8,14 +8,14 @@
             {% for quest in questions %}
                 <h3 class="list-group-item list-group-item-action">{{quest.title}}</h3>
                 <div class="list-group btn-group" data-toggle="buttons">
-                    {% for answ in quest.answers %}
-                        {% if quest.multiansw %}
+                    {% for choice in quest.choices %}
+                        {% if quest.multichoice %}
                             <label class="list-group-item list-group-item-action btn btn-secondary">
-                                <input type="checkbox" name="multiansw" value="{{answ.text}}" autocomplete="off"> {{answ.text}}
+                                <input type="checkbox" name="multichoice" value="{{choice.text}}" autocomplete="off"> {{choice.text}}
                             </label>
                         {% else %}
                             <label class="list-group-item list-group-item-action btn btn-secondary">
-                                <input type="radio" name="{{quest.title}}" value="{{answ.text}}" autocomplete="off"> {{answ.text}}
+                                <input type="radio" name="{{quest.title}}" value="{{choice.text}}" autocomplete="off"> {{choice.text}}
                             </label>
                         {% endif %}
                     {% endfor %}
