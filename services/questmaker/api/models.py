@@ -3,12 +3,6 @@ import datetime, uuid
 from flask import current_app
 import jwt
 
-
-choicebond = db.Table("choicebond",
-    db.Column('questions', db.String(128), db.ForeignKey('questions.id'), primary_key=True),
-    db.Column('choices', db.String(128), db.ForeignKey('choices.id'), primary_key=True)
-)
-
 questgroup = db.Table("questgroup",
     db.Column('questions', db.String(128), db.ForeignKey('questions.id'), primary_key=True),
     db.Column('inquiries', db.String(128), db.ForeignKey('inquiries.id'), primary_key=True)
@@ -94,7 +88,7 @@ class Question(db.Model):
     title = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
     multichoice = db.Column(db.Boolean)
-    choices = db.relationship("Choice", secondary=choicebond, backref=db.backref('question', lazy='dynamic'))
+    choices = db.relationship("Choice", backref=db.backref('question', lazy=True))
 
     def __init__(self, title, multichoice=False, created_at=datetime.datetime.now()):
         self.id = str(uuid.uuid1())
@@ -111,6 +105,7 @@ class Choice(db.Model):
     text = db.Column(db.Text, nullable=False)
     value = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False)
+    question_id = db.Column(db.String(128), db.ForeignKey('questions.id'), nullable=False)
 
     def __init__(self, text, value=None, created_at=datetime.datetime.now()):
         self.id = str(uuid.uuid1())
