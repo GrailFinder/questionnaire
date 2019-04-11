@@ -39,7 +39,7 @@ class TestTestingConfig(TestCase):
         self.assertFalse(app.config['PRESERVE_CONTEXT_ON_EXCEPTION'])
         self.assertTrue(
             app.config['SQLALCHEMY_DATABASE_URI'] ==
-            'postgres://postgres:postgres@questmaker-db:5432/questmaker_test'
+            'postgres://postgres:postgres@db:5432/questmaker_test'
         )
         self.assertTrue(app.config['BCRYPT_LOG_ROUNDS'] == 4)
         self.assertTrue(app.config['TOKEN_EXPIRATION_DAYS'] == 0)

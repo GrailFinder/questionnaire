@@ -2,3 +2,5 @@ urdb
 urtest
 toprod
 .env
+__pycache__
+*pyc

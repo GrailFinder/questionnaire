@@ -17,6 +17,8 @@ services:
   questmaker:
     container_name: questmaker
     build: .
+    volumes:
+      - .:/usr/src/app
     ports:
       - 5001:5000 # expose ports - HOST:CONTAINER
     environment:
@@ -31,6 +33,9 @@ services:
     links:
       - db
     restart: always
+
+volumes:
+  .:
 
 
   # nginx:
