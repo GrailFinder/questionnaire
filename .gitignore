@@ -4,3 +4,4 @@ toprod
 .env
 __pycache__
 *pyc
+htmlcov
