@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_restful import Api
 import os
+from flask_cors import CORS, cross_origin
 
 
 # instantiate the db
@@ -14,6 +15,12 @@ def create_app():
 
     # init app
     app = Flask(__name__)
+
+    #cors
+    cors = CORS(app)
+    #app.config['CORS_HEADERS'] = 'Content-Type'
+
+
     # set config
     app_settings = os.getenv('APP_SETTINGS')
     app.config.from_object(app_settings)

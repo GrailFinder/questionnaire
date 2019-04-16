@@ -42,3 +42,16 @@ def authenticate(f):
 def is_admin(user_id):
     user = User.query.filter_by(id=user_id).first()
     return user.admin
+
+
+def row2dict(row):
+    """
+    https://stackoverflow.com/questions/1958219/convert-sqlalchemy-row-object-to-python-dict
+    """
+    d = {}
+    for column in row.__table__.columns:
+        print(column)
+        print("------------------")
+        d[column.name] = str(getattr(row, column.name))
+
+    return d

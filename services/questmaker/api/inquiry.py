@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response, render_template, current_app, abort
 from flask_restful import Resource, fields, marshal_with, reqparse
-from sqlalchemy import exc
+from sqlalchemy import exc, text
 from services.questmaker.api.models import Inquiry
 from services.questmaker.api.utils import authenticate
 from services.questmaker import db
@@ -85,6 +85,62 @@ def get_single_inquiry(inquiry_id):
                     'created_at': inquiry.created_at,
                     'questions': ["{}:{}".format(q.id, q.title) for q in inquiry.questions]
                 }
+            }
+            return make_response(jsonify(response_object)), 200
+    except ValueError:
+        return make_response(jsonify(response_object)), 404
+
+
+@inquiry_blueprint.route('/inq-view/<inq_id>', methods=['GET'])
+def get_inq_view(inq_id):
+    """
+    instead of view in postgress, make joins in this method
+    all inq info in one request
+    """
+    response_object = {
+        'status': 'fail',
+        'message': 'inquiry does not exist'
+    }
+    try:
+        inquiry = Inquiry.query.filter_by(id=inq_id).first()
+        if not inquiry:
+            return make_response(jsonify(response_object)), 404
+        else:
+            query = f"""SELECT questgroup.inquiries as inq_id,
+                questions.id AS q_id,
+                choices.id AS c_id,
+                questions.title,
+                choices.text,
+                questions.multichoice,
+                questions.created_at
+            FROM questgroup
+                JOIN questions ON questions.id::text = questgroup.questions::text
+                JOIN choices ON questions.id::text = choices.question_id::text
+            WHERE questgroup.inquiries::text = '{inq_id}'::text;
+            """
+
+
+            raw_result = db.engine.execute(text(query))
+
+            # get column names
+            keys = raw_result.keys()
+
+            # get data
+            res_data = raw_result.fetchall()
+
+            data = [dict(zip(keys, row)) for row in res_data]
+
+            # make dict with empty lists as values
+            questions = {row["title"]: list() for row in data}
+            # fill these values with choices
+            [questions[row["title"]].append(row["text"]) for row in data]
+
+
+            
+
+            response_object = {
+                'status': 'success',
+                'data': questions
             }
             return make_response(jsonify(response_object)), 200
     except ValueError:
