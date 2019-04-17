@@ -107,11 +107,12 @@ class Choice(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
     question_id = db.Column(db.String(128), db.ForeignKey('questions.id'), nullable=False)
 
-    def __init__(self, text, value=None, created_at=datetime.datetime.now()):
+    def __init__(self, text, question_id, value=None, created_at=datetime.datetime.now()):
         self.id = str(uuid.uuid1())
         self.text = text
         self.value = value
         self.created_at = created_at
+        self.question_id = question_id
 
     def __str__(self):
         return f'{self.title}: {self.id}'

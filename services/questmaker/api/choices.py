@@ -18,11 +18,12 @@ def add_choice():
         return make_response(jsonify(response_object)), 400
 
     text = post_data.get('text')
+    question_id = post_data.get('question_id')
 
     try:
-        choice = Choice.query.filter_by(text=text).first()
+        choice = Choice.query.filter_by(text=text, question_id=question_id).first()
         if not choice: # if there was no such Choice in db
-            db.session.add(Choice(text=text))
+            db.session.add(Choice(text=text, question_id=question_id))
             db.session.commit()
             response_object = {
                 'status': 'success',
@@ -36,6 +37,7 @@ def add_choice():
             }
             return make_response(jsonify(response_object)), 400
     except (exc.IntegrityError, ValueError) as e:
+        print(e)
         db.session().rollback()
         response_object = {
             'status': 'fail',

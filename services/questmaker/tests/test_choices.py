@@ -7,11 +7,15 @@ class TestChoiceService(BaseTestCase):
 
     def test_add_choice(self):
         """Ensure that creating new choice behaves normal"""
+
+        q = add_quest("do you love snow?")
+
         with self.client:
             response = self.client.post(
                 "/choice",
                 data=json.dumps(dict(
-                    text="testone"
+                    text="testone",
+                    question_id=q.id,
                 )),
                 content_type='application/json',
             )
@@ -23,7 +27,9 @@ class TestChoiceService(BaseTestCase):
     def test_single_choice(self):
         """test getting choice by id"""
 
-        choice = add_choice(text="Are you even test?")
+        q1 = add_quest("test?")
+
+        choice = add_choice(text="Are you even test?", quest=q1)
         with self.client:
             response = self.client.get(f'choice/{choice.id}')
             data = json.loads(response.data.decode())
