@@ -131,12 +131,13 @@ def get_inq_view(inq_id):
             data = [dict(zip(keys, row)) for row in res_data]
 
             # make dict with empty lists as values
-            questions = {row["title"]: list() for row in data}
+            questions = {row["title"]: dict(choice=list(), multichoice=False) for row in data}
             # fill these values with choices
-            [questions[row["title"]].append(row["text"]) for row in data]
-
-
-            
+            #[questions[row["title"]].append(row["text"]) for row in data]
+            print(questions)
+            for row in data:
+                questions[row["title"]]["choice"].append(row["text"])
+                questions[row["title"]]["multichoice"] = row["multichoice"]
 
             response_object = {
                 'status': 'success',

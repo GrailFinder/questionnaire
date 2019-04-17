@@ -58,18 +58,26 @@ class TestinquiryService(BaseTestCase):
         u0 = add_user(username='grail', email="test@example.com", password='test')
 
         # first question
-        i1 = add_inquiry(title="Who are you from the star wars?")
-        q1 = add_quest(title="How was your day, sweety?")
+        i1 = add_inquiry(title="Who are you from the star wars?", user=u0)
+        q1 = add_quest(title="How was your day, sweety?", inq=i1)
         a1 = add_choice("Okay", quest=q1)
         a2 = add_choice("Good", quest=q1)
         a3 = add_choice("Bad", quest=q1)
         a4 = add_choice("Who are you again?", quest=q1)
 
+        q2 = add_quest(title="Anyway how is your sex life?", inq=i1)
+        add_choice("You're just a little chicken", quest=q2)
+        add_choice("Its not true, I did not hit her. I did not", quest=q2)
+        add_choice("I am so happy to have you as my best friend and I love Lisa so much", quest=q2)
+        add_choice("If a lot of people would love each other, the world would be a better place to live", quest=q2)
+
 
         with self.client:
-            response = self.client.get(f'inquiry/{i1.id}')
+            response = self.client.get(f'inq-view/{i1.id}')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertTrue('created_at' in data['data'])
-            self.assertIn('Who are you from the star wars?', data['data']['title'])
+            print(data["data"])
+            self.assertIn('How was your day, sweety?', data['data'])
             self.assertIn('success', data['status'])
+            self.assertIn('Good', data['data']['How was your day, sweety?']["choice"])
+            self.assertFalse(data['data']['How was your day, sweety?']["multichoice"])
