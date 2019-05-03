@@ -46,5 +46,8 @@ def create_app():
     api.add_resource(InquiryRoute, '/inq/<inquiry_id>')
     api.add_resource(InquiryListRoute, '/inqs/')
 
+    from services.questmaker.api.answers import AnswerListRoute
+    api.add_resource(AnswerListRoute, '/answers')
+
     return app
 

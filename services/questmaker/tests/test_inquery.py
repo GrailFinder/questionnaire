@@ -79,5 +79,5 @@ class TestinquiryService(BaseTestCase):
             print(data["data"])
             self.assertIn('How was your day, sweety?', data['data'])
             self.assertIn('success', data['status'])
-            self.assertIn('Good', data['data']['How was your day, sweety?']["choice"])
+            self.assertIn('Good', data['data']['How was your day, sweety?']["choice"].values())
             self.assertFalse(data['data']['How was your day, sweety?']["multichoice"])
