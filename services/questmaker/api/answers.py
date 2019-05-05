@@ -49,22 +49,27 @@ class AnswerListRoute(Resource):
         try:
             post_data = request.get_json()
 
-            # user_id is not necessary
-            if "user_id" not in post_data:
-                post_data["user_id"] = None
+            # post data should be list of dicts
+            assert type(post_data) is list
+
+            for data in post_data:
+
+                # user_id is not necessary
+                if "user_id" not in data:
+                    data["user_id"] = None
 
 
-            id = str(uuid.uuid1())
-            current_app.logger.info(f"going to make response: {id}")
-            db.session.add(Answer(id=id, choice=post_data["choice_id"],
-                                question=post_data["quest_id"], inq=post_data["inq_id"],
-                                user=post_data["user_id"]))
+                id = str(uuid.uuid1())
+                current_app.logger.info(f"going to make response: {id}")
+                db.session.add(Answer(id=id, choice=data["choice_id"],
+                                    question=data["quest_id"], inq=data["inq_id"],
+                                    user=data["user_id"]))
 
-            db.session.commit()
-            response_object = {
-                'id': id,
-                'status': 'success',
-            }
+                db.session.commit()
+                response_object = {
+                    'id': id,
+                    'status': 'success',
+                }
             return response_object, 201
 
         except (exc.IntegrityError, ValueError, KeyError) as e:

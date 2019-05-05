@@ -25,7 +25,8 @@ class TestAnswerService(BaseTestCase):
         with self.client:
             response = self.client.post(
                 "/answers",
-                data=json.dumps(answ_fields),
+                # put answer in list
+                data=json.dumps([answ_fields]),
                 content_type='application/json',
             )
             data = json.loads(response.data.decode())

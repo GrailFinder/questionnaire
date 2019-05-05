@@ -1,5 +1,5 @@
 from services.questmaker import db
-from services.questmaker.api.models import Question, Choice, Inquiry, User
+from services.questmaker.api.models import Question, Choice, Inquiry, User, Answer
 
 
 def add_quest(title, multi=False, inq=None):
@@ -29,3 +29,10 @@ def add_user(username, email, password):
     db.session.add(user)
     db.session.commit()
     return user
+
+
+def add_answer(inq_id, quest_id, choice_id, user_id=None):
+    answer = Answer(inq=inq_id, question=quest_id, choice=choice_id, user=user_id)
+    db.session.add(answer)
+    db.session.commit()
+    return answer
