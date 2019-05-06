@@ -124,3 +124,9 @@ class Answer(db.Model):
     question = db.Column(db.String(128), db.ForeignKey('questions.id'), nullable=False)
     inq = db.Column(db.String(128), db.ForeignKey('inquiries.id'), nullable=False)
     user = db.Column(db.String(128), db.ForeignKey('users.id'), nullable=True)
+
+    def __init__(self, **kwargs):
+        #https://stackoverflow.com/questions/20460339/flask-sqlalchemy-constructor
+        super(Answer, self).__init__(**kwargs) # too lazy to bind all of it
+        self.id = str(uuid.uuid1())
+

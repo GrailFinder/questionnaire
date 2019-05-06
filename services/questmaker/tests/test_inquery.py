@@ -48,6 +48,18 @@ class TestinquiryService(BaseTestCase):
             self.assertIn('Are you even test?', data['data']['title'])
             self.assertIn('success', data['status'])
 
+    
+    def test_single_inquiry_restful(self):
+        """test getting inquiry by id - restful route"""
+
+        inq = add_inquiry(title="Are you even test?")
+        with self.client:
+            response = self.client.get(f'inq/{inq.id}')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue('created_at' in data)
+            self.assertIn('Are you even test?', data['title'])
+
 
     def test_inq_view(self):
         """
