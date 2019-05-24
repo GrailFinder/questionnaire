@@ -80,7 +80,7 @@ class Inquiry(db.Model): # Опросник
 
     def __str__(self):
         return f'{self.title}: {self.id}'
-    
+
 
 class Question(db.Model):
     __tablename__ = "questions"
@@ -129,4 +129,7 @@ class Answer(db.Model):
         #https://stackoverflow.com/questions/20460339/flask-sqlalchemy-constructor
         super(Answer, self).__init__(**kwargs) # too lazy to bind all of it
         self.id = str(uuid.uuid1())
+
+    def __str__(self):
+        return f"{self.id}: on {self.inq} by {self.user}"
 

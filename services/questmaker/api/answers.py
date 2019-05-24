@@ -1,5 +1,5 @@
 from flask_restful import Resource, fields, marshal_with, reqparse
-from flask import abort, request, current_app
+from flask import abort, request, current_app, jsonify
 from sqlalchemy import exc
 from services.questmaker.api.models import Answer
 from services.questmaker import db
@@ -7,10 +7,10 @@ import uuid
 
 answ_fields = {
     "id": fields.String,
-    "inq_id": fields.String,
-    "quest_id": fields.String,
-    "choice_id": fields.String,
-    "user_id": fields.String,
+    "inq": fields.String,
+    "question": fields.String,
+    "choice": fields.String,
+    "user": fields.String,
 }
 
 class AnswerRoute(Resource):
@@ -31,11 +31,18 @@ class AnswerRoute(Resource):
 
 class AnswerListRoute(Resource):
     @marshal_with(answ_fields)
-    def get(self, inq_id):
-        answers = Answer.query.filter_by(inq=inq_id).all()
-        if not answers:
+    def get(self):
+        args = request.args
+        current_app.logger.info(args)
+        inq_id = args["inq_id"]
+        if not inq_id:
             return abort(404)
-        return answers
+        answers = Answer.query.filter_by(inq=inq_id).all()
+        current_app.logger.info(answers)
+        #if not answers:
+         #   return abort(404)
+        current_app.logger.info([answer.__dict__ for answer in answers])
+        return [answer.__dict__ for answer in answers]
 
     def post(self):
 
@@ -52,6 +59,10 @@ class AnswerListRoute(Resource):
             # post data should be list of dicts
             assert type(post_data) is list
 
+            current_app.logger.info(post_data)
+
+            resp_ids = []
+
             for data in post_data:
 
                 # user_id is not necessary
@@ -66,10 +77,12 @@ class AnswerListRoute(Resource):
                                     user=data["user_id"]))
 
                 db.session.commit()
+                resp_ids.append(id)
                 response_object = {
-                    'id': id,
+                    'last_id': id,
                     'status': 'success',
                 }
+            response_object["ids"] = resp_ids
             return response_object, 201
 
         except (exc.IntegrityError, ValueError, KeyError) as e:
@@ -84,5 +97,5 @@ class AnswerListRoute(Resource):
 
 
 
-        
+
 
