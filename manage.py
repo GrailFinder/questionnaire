@@ -40,10 +40,10 @@ def seed_db():
     # first question
     i1 = Inquiry(title="Who are you from the star wars?")
     q1 = Question(title="How was your day, sweety?")
-    a1 = Choice("Okay")
-    a2 = Choice("Good")
-    a3 = Choice("Bad")
-    a4 = Choice("Who are you again?")
+    a1 = Choice("Okay", q1.id)
+    a2 = Choice("Good", q1.id)
+    a3 = Choice("Bad", q1.id)
+    a4 = Choice("Who are you again?", q1.id)
 
     for a in (a1, a2, a3, a4):
         db.session.add(a)
@@ -56,10 +56,10 @@ def seed_db():
 
     # second question
     q1 = Question(title="Anyway how is your sex life?")
-    a1 = Choice("You're just a little chicken")
-    a2 = Choice("Its not true, I did not hit her. I did not")
-    a3 = Choice("I am so happy to have you as my best friend and I love Lisa so much")
-    a4 = Choice("If a lot of people would love each other, the world would be a better place to live")
+    a1 = Choice("You're just a little chicken", q1.id)
+    a2 = Choice("Its not true, I did not hit her. I did not", q1.id)
+    a3 = Choice("I am so happy to have you as my best friend and I love Lisa so much", q1.id)
+    a4 = Choice("If a lot of people would love each other, the world would be a better place to live", q1.id)
 
     for a in (a1, a2, a3, a4):
         db.session.add(a)
