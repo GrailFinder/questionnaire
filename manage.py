@@ -17,6 +17,7 @@ COV = coverage.coverage(
 COV.start()
 
 app = create_app()
+app.url_map.strict_slashes = False
 
 manager = Manager(app)
 

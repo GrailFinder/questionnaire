@@ -69,12 +69,15 @@ class Inquiry(db.Model): # Опросник
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
     description = db.Column(db.Text, nullable=True)
     questions = db.relationship("Question", secondary=questgroup, backref=db.backref('inquiry', lazy='dynamic'))
+    user_id = db.Column(db.String(128), db.ForeignKey('users.id'), nullable=True)
 
-    def __init__(self, title, description=None, id=None):
+    def __init__(self, title, user_id=None, description=None, id=None):
         if not id:
             self.id = str(uuid.uuid1())
         else:
             self.id = id
+
+        self.user_id = user_id
         self.title = title
         self.description = description
 

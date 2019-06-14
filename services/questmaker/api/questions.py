@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response, render_template
 from sqlalchemy import exc
-from services.questmaker.api.models import Question
+from services.questmaker.api.models import Question, Inquiry
 from services.questmaker.api.utils import authenticate
 from services.questmaker import db
 
@@ -19,6 +19,7 @@ def ping_pong():
 def add_question(resp):
     # get data from request
     post_data = request.get_json()
+    print(post_data)
     if not post_data:
         response_object = {
             'status': 'fail',
@@ -27,11 +28,19 @@ def add_question(resp):
         return make_response(jsonify(response_object)), 400
 
     title = post_data.get('title')
+    multichoice = post_data.get('multichoice')
+    inq_id = post_data.get('inq_id')
 
     try:
         question = Question.query.filter_by(title=title).first()
         if not question: # if there was no such question in db
-            db.session.add(Question(title=title))
+            quest = Question(title=title, multichoice=multichoice)
+            if inq_id:
+                # get the inq object
+                inq = Inquiry.query.filter_by(id=inq_id).first()
+                inq.questions.append(quest)
+
+            db.session.add(quest)
             db.session.commit()
             response_object = {
                 'status': 'success',
@@ -63,7 +72,7 @@ def show_all():
         'status': 'success',
         'data': data_list,
     }
-    
+
     return jsonify(response_object), 200
 
 @questions_blueprint.route('/quest/<quest_id>', methods=['GET'])

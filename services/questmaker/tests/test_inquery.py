@@ -22,7 +22,8 @@ class TestinquiryService(BaseTestCase):
             response = self.client.post(
                 "/inquiries",
                 data=json.dumps(dict(
-                    title="testone"
+                    title="testone",
+                    owner_id=user.id,
                 )),
                 content_type='application/json',
                 headers=dict(
@@ -48,7 +49,7 @@ class TestinquiryService(BaseTestCase):
             self.assertIn('Are you even test?', data['data']['title'])
             self.assertIn('success', data['status'])
 
-    
+
     def test_single_inquiry_restful(self):
         """test getting inquiry by id - restful route"""
 

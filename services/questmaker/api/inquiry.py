@@ -9,13 +9,11 @@ import json
 
 inquiry_blueprint = Blueprint('inquiry', __name__, template_folder='./templates')
 
-#config = {'AMQP_URI': 'amqp://guest:guest@{}'.format(os.environ.get('HOST_IP'))}
-config = {'AMQP_URI': "pyamqp://guest:guest@rabbit"}
 
 @inquiry_blueprint.route('/inquiries', methods=['POST'])
 @authenticate
 def add_inquiry(resp):
-    
+
     # get data from request
     post_data = request.get_json()
     if not post_data:
@@ -54,7 +52,7 @@ def add_inquiry(resp):
 
 @inquiry_blueprint.route('/inquiries', methods=['GET'])
 def get_inquiries():
-        
+
     inquiry = Inquiry.query.all()
     data_list = [{'id': i.id, 'title': i.title, 'created_at': i.created_at,
     'questions': [f'{q}' for q in i.questions]} for i in inquiry]
@@ -62,7 +60,7 @@ def get_inquiries():
     response_object = {
         'status': 'success',
         'data': data_list,
-    }        
+    }
     return jsonify(response_object), 200
 
 @inquiry_blueprint.route('/inquiry/<inquiry_id>', methods=['GET'])
@@ -174,7 +172,8 @@ resourse_fields = {
     'created_at': fields.DateTime,
     'updated_at': fields.DateTime,
     'description': fields.String,
-    'questions': fields.List(fields.Nested(question_fields))
+    'questions': fields.List(fields.Nested(question_fields)),
+    'user_id': fields.String,
 }
 
 parser = reqparse.RequestParser()
@@ -192,25 +191,30 @@ class InquiryRoute(Resource):
     def delete(self, inquiry_id):
         Inquiry.query.delete(id=inquiry_id)
 
-    
+
 class InquiryListRoute(Resource):
     @marshal_with(resourse_fields)
     def get(self):
         return Inquiry.query.all()
-    
+
     #@marshal_with(resourse_fields)
     def post(self):
         #args = parser.parse_args()
         post_data = request.get_json()
         title = post_data.get('title')
-        current_app.logger.info(f"post title: {title}")
+        # check for other keys like user_id
+        user_id = None
+        if "user_id" in post_data:
+            user_id = post_data["user_id"]
+
+        current_app.logger.info(f"post title: {title}, user_id: {user_id}")
 
         try:
             inquiry = Inquiry.query.filter_by(title=title).first()
             if not inquiry: # if there was no such inquiry in db
                 id = str(uuid.uuid1())
                 current_app.logger.info(f"going to make response: {id}")
-                db.session.add(Inquiry(title=title, id=id))
+                db.session.add(Inquiry(title=title, id=id, user_id=user_id))
                 db.session.commit()
                 response_object = {
                     'id': id,
