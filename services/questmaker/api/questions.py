@@ -3,6 +3,7 @@ from sqlalchemy import exc
 from services.questmaker.api.models import Question, Inquiry
 from services.questmaker.api.utils import authenticate
 from services.questmaker import db
+from flask_restful import Resource, fields, marshal_with, reqparse
 
 questions_blueprint = Blueprint('questions', __name__, template_folder='./templates')
 
@@ -99,3 +100,10 @@ def get_single_quest(quest_id):
             return make_response(jsonify(response_object)), 200
     except ValueError:
         return make_response(jsonify(response_object)), 404
+
+class QuestionRoute(Resource):
+    @authenticate
+    def delete(self, id):
+        # TODO add exception and stuff
+        Question.query.delete(id=id)
+        return 204

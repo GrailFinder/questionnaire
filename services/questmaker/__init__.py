@@ -50,5 +50,8 @@ def create_app():
     api.add_resource(AnswerListRoute, '/answers')
     api.add_resource(AnswerRoute, '/answer/<id>')
 
+    from services.questmaker.api.questions import QuestionRoute
+    api.add_resource(QuestionRoute, '/question/<id>')
+
     return app
 

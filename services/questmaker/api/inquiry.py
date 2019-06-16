@@ -189,7 +189,9 @@ class InquiryRoute(Resource):
 
     @authenticate
     def delete(self, inquiry_id):
+        # TODO add exception and stuff
         Inquiry.query.delete(id=inquiry_id)
+        return 204
 
 
 class InquiryListRoute(Resource):
