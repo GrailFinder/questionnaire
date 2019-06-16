@@ -1,4 +1,4 @@
-import json
+import json, uuid
 from services.questmaker.tests.base import BaseTestCase
 from services.questmaker.tests.utils import add_quest, add_user
 
@@ -39,7 +39,7 @@ class TestQuestionService(BaseTestCase):
                     )['auth_token']
                 )
             )
-            
+
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
             self.assertIn('success', data['status'])
@@ -63,3 +63,64 @@ class TestQuestionService(BaseTestCase):
             self.assertTrue('created_at' in data['data'])
             self.assertIn('Are you even test?', data['data']['title'])
             self.assertIn('success', data['status'])
+
+    def test_edit_quest(self):
+        """create and then edit test"""
+        q = add_quest(title="Are you even test?")
+        with self.client:
+            # login
+            user = add_user('test', 'test@test.com', 'test')
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps(dict(
+                    email='test@test.com',
+                    password='test'
+                )),
+                content_type='application/json'
+            )
+            # edit quest
+            resp = self.client.put(
+                f"/question/{q.id}",
+                data=json.dumps(dict(
+                    title="Can you read?",
+                    multichoice=False,
+                )),
+                content_type='application/json',
+                headers=dict(
+                    Authorization='Bearer ' + json.loads(
+                        resp_login.data.decode()
+                    )['auth_token']
+                )
+            )
+        # resp should contain status_code==204 only
+        self.assertEqual(resp.status_code, 204)
+
+
+    def test_create_question_by_put(self):
+        """creates question using put"""
+        random_id = uuid.uuid4()
+        with self.client:
+            # login
+            user = add_user('test', 'test@test.com', 'test')
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps(dict(
+                    email='test@test.com',
+                    password='test'
+                )),
+                content_type='application/json'
+            )
+            resp = self.client.put(
+                f"/question/{random_id}",
+                data=json.dumps(dict(
+                    title="Can you read?",
+                    multichoice=False,
+                )),
+                content_type='application/json',
+                headers=dict(
+                    Authorization='Bearer ' + json.loads(
+                        resp_login.data.decode()
+                    )['auth_token']
+                )
+                    )
+

@@ -103,7 +103,35 @@ def get_single_quest(quest_id):
 
 class QuestionRoute(Resource):
     @authenticate
-    def delete(self, id):
+    def delete(self, resp, quest_id):
         # TODO add exception and stuff
-        Question.query.delete(id=id)
-        return 204
+        Question.query.delete(id=quest_id)
+        return None, 200
+
+    @authenticate
+    def put(self, resp, quest_id):
+        put_data = request.get_json()
+        if "title" not in put_data or "multichoice" not in put_data:
+            response_object = {
+                'status': 'fail',
+                'message': """Invalid payload.
+                            Should have at least title
+                            and multichoice options;"""
+            }
+            return make_response(jsonify(response_object)), 400
+
+        quest = Question.query.filter_by(id=quest_id)
+        if not quest:
+            quest = Question(title=put_data["title"],
+                            multichoice=put_data["multichoice"])
+            db.session.add(quest)
+            resp_object = {
+                        "id": quest_id,
+                        "status": "success",
+                        }
+        else:
+            quest.title = put_data["title"]
+            quest.multichoice = put_data["multichoice"]
+        db.session.commit()
+        return None, 204
+
