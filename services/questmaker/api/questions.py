@@ -20,7 +20,6 @@ def ping_pong():
 def add_question(resp):
     # get data from request
     post_data = request.get_json()
-    print(post_data)
     if not post_data:
         response_object = {
             'status': 'fail',
@@ -39,6 +38,7 @@ def add_question(resp):
             if inq_id:
                 # get the inq object
                 inq = Inquiry.query.filter_by(id=inq_id).first()
+                current_app.logger.info(f"got inq: {inq} with id: {inq_id}")
                 inq.questions.append(quest)
 
             db.session.add(quest)
@@ -101,12 +101,35 @@ def get_single_quest(quest_id):
     except ValueError:
         return make_response(jsonify(response_object)), 404
 
+choice_fields = {
+        'id': fields.String,
+        'text': fields.String,
+        'value': fields.String,
+        'created_at': fields.DateTime,
+        'question_id': fields.String,
+        }
+
+resourse_fields = {
+    'id': fields.String,
+    'title': fields.String,
+    'created_at': fields.DateTime,
+    'multichoice': fields.Boolean,
+    'choices': fields.List(fields.Nested(choice_fields)),
+}
 class QuestionRoute(Resource):
     @authenticate
     def delete(self, resp, quest_id):
         # TODO add exception and stuff
-        Question.query.delete(id=quest_id)
-        return None, 200
+        print("Hello! I'm the delete func!")
+        bad_resp = {
+                'status': 'fail',
+            }
+        try:
+            Question.query.filter_by(id=quest_id).delete()
+        except Exception as e:
+            print(e)
+            return make_response(jsonify(bad_resp)), 400
+        return make_response(jsonify("")), 200
 
     @authenticate
     def put(self, resp, quest_id):
@@ -124,6 +147,8 @@ class QuestionRoute(Resource):
         if not quest:
             quest = Question(title=put_data["title"],
                             multichoice=put_data["multichoice"])
+            # we need to use given id
+            quest.id = quest_id
             db.session.add(quest)
             resp_object = {
                         "id": quest_id,
@@ -134,4 +159,61 @@ class QuestionRoute(Resource):
             quest.multichoice = put_data["multichoice"]
         db.session.commit()
         return None, 204
+
+    @marshal_with(resourse_fields)
+    def get(self, quest_id):
+        quest = Question.query.filter_by(id=quest_id).first()
+        if not quest:
+            return abort(404)
+        return quest
+
+class QuestionListRoute(Resource):
+
+    @marshal_with
+    def get(self):
+        return Question.query.all()
+
+    def post(self):
+        post_data = request.get_json()
+        if not post_data:
+            response_object = {
+                'status': 'fail',
+                'message': 'Invalid payload.'
+            }
+            return make_response(jsonify(response_object)), 400
+
+        title = post_data.get('title')
+        multichoice = post_data.get('multichoice')
+        inq_id = post_data.get('inq_id')
+
+        try:
+            question = Question.query.filter_by(title=title).first()
+            if not question: # if there was no such question in db
+                quest = Question(title=title, multichoice=multichoice)
+                if inq_id:
+                    # get the inq object
+                    inq = Inquiry.query.filter_by(id=inq_id).first()
+                    inq.questions.append(quest)
+
+                db.session.add(quest)
+                db.session.commit()
+                response_object = {
+                    'status': 'success',
+                    'message': f'{title} was added!'
+                }
+                return make_response(jsonify(response_object)), 201
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'That question already exists.'
+                }
+                return make_response(jsonify(response_object)), 400
+        except (exc.IntegrityError, ValueError) as e:
+            db.session().rollback()
+            response_object = {
+                'status': 'fail',
+                'message': 'Invalid payload.'
+            }
+            return make_response(jsonify(response_object)), 400
+
 

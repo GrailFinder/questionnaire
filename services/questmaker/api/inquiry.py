@@ -24,15 +24,19 @@ def add_inquiry(resp):
         return make_response(jsonify(response_object)), 400
 
     title = post_data.get('title')
+    if "user_id" in post_data:
+        user_id = post_data["user_id"]
 
     try:
         inquiry = Inquiry.query.filter_by(title=resp).first()
         if not inquiry: # if there was no such inquiry in db
-            db.session.add(Inquiry(title=title))
+            id = str(uuid.uuid1())
+            db.session.add(Inquiry(title=title, user_id=user_id, id=id))
             db.session.commit()
             response_object = {
                 'status': 'success',
-                'message': f'{title} was added!'
+                'message': f'{title} was added!',
+                'id': id,
             }
             return make_response(jsonify(response_object)), 201
         else:
@@ -199,13 +203,16 @@ class InquiryListRoute(Resource):
     def get(self):
         return Inquiry.query.all()
 
-    #@marshal_with(resourse_fields)
+    # without authentication should create anon inq
+    # available for everyone
     def post(self):
         #args = parser.parse_args()
         post_data = request.get_json()
         title = post_data.get('title')
         # check for other keys like user_id
         user_id = None
+
+        # dont use user_id from front anyway
         if "user_id" in post_data:
             user_id = post_data["user_id"]
 

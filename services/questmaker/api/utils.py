@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, make_response
 import uuid, sys
 from services.questmaker.api.models import User
 
@@ -8,6 +8,7 @@ from services.questmaker.api.models import User
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        print("hey! its me! login func!")
         response_object = {
             'status': 'error',
             'message': 'Something went wrong. Please contact us.'
@@ -15,20 +16,23 @@ def authenticate(f):
         code = 401
         auth_header = request.headers.get('Authorization')
         if not auth_header:
+            print("not valid token")
+            print(request.headers)
             response_object['message'] = 'Provide a valid auth token.'
             code = 403
-            return jsonify(response_object), code
+            return make_response(jsonify(response_object)), code
         auth_token = auth_header.split(" ")[1]
         resp = User.decode_auth_token(auth_token)
 
-        current_app.logger.info(resp)
+        current_app.logger.info(f"resp: {resp}")
+        print("resp:", resp)
         try:
             uuid.UUID(resp).hex  # parse 'uuid' to uuid
         except ValueError as e:
             current_app.logger.info(e)
             response_object = {
                 'status': 'error',
-                'message': resp
+                'message': resp,
             }
             return jsonify(response_object), 401
         user = User.query.filter_by(id=resp).first()

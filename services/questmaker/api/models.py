@@ -3,10 +3,6 @@ import datetime, uuid
 from flask import current_app
 import jwt
 
-questgroup = db.Table("questgroup",
-    db.Column('questions', db.String(128), db.ForeignKey('questions.id'), primary_key=True),
-    db.Column('inquiries', db.String(128), db.ForeignKey('inquiries.id'), primary_key=True)
-)
 
 inqowner = db.Table("inqowner",
     db.Column('users', db.String(128), db.ForeignKey('users.id'), primary_key=True),
@@ -68,7 +64,8 @@ class Inquiry(db.Model): # Опросник
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
     description = db.Column(db.Text, nullable=True)
-    questions = db.relationship("Question", secondary=questgroup, backref=db.backref('inquiry', lazy='dynamic'))
+    public = db.Column(db.Boolean, default=False, nullable=False)
+    questions = db.relationship("Question", backref=db.backref('inquiry', lazy=True))
     user_id = db.Column(db.String(128), db.ForeignKey('users.id'), nullable=True)
 
     def __init__(self, title, user_id=None, description=None, id=None):
@@ -92,6 +89,7 @@ class Question(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
     multichoice = db.Column(db.Boolean)
     choices = db.relationship("Choice", backref=db.backref('question', lazy=True))
+    inq_id = db.Column(db.String(128), db.ForeignKey('inquiries.id'), nullable=False)
 
     def __init__(self, title, multichoice=False, created_at=datetime.datetime.now()):
         self.id = str(uuid.uuid1())
