@@ -1,6 +1,6 @@
 import json
 from services.questmaker.tests.base import BaseTestCase
-from services.questmaker.tests.utils import add_quest, add_choice
+from services.questmaker.tests.utils import add_quest, add_choice, add_inquiry
 
 class TestChoiceService(BaseTestCase):
     """Tests for the Choices"""
@@ -8,7 +8,8 @@ class TestChoiceService(BaseTestCase):
     def test_add_choice(self):
         """Ensure that creating new choice behaves normal"""
 
-        q = add_quest("do you love snow?")
+        inq = add_inquiry("test inq")
+        q = add_quest("do you love snow?", inq=inq)
 
         with self.client:
             response = self.client.post(
@@ -27,7 +28,8 @@ class TestChoiceService(BaseTestCase):
     def test_single_choice(self):
         """test getting choice by id"""
 
-        q1 = add_quest("test?")
+        inq = add_inquiry("test inq")
+        q1 = add_quest("test?", inq=inq)
 
         choice = add_choice(text="Are you even test?", quest=q1)
         with self.client:

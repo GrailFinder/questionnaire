@@ -2,10 +2,9 @@ from services.questmaker import db
 from services.questmaker.api.models import Question, Choice, Inquiry, User, Answer
 
 
-def add_quest(title, multi=False, inq=None):
+def add_quest(title, inq, multi=False):
     quest = Question(title=title, multichoice=multi)
-    if inq:  # it should be required
-        inq.questions.append(quest)
+    inq.questions.append(quest)
     db.session.add(quest)
     db.session.commit()
     return quest

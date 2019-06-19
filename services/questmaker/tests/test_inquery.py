@@ -23,7 +23,7 @@ class TestinquiryService(BaseTestCase):
                 "/inquiries",
                 data=json.dumps(dict(
                     title="testone",
-                    owner_id=user.id,
+                    user_id=user.id,
                 )),
                 content_type='application/json',
                 headers=dict(
@@ -36,22 +36,11 @@ class TestinquiryService(BaseTestCase):
             self.assertEqual(response.status_code, 201)
             self.assertIn('success', data['status'])
 
+    #TODO add anon inq creation test
+
 
     def test_single_inquiry(self):
         """test getting inquiry by id"""
-
-        inq = add_inquiry(title="Are you even test?")
-        with self.client:
-            response = self.client.get(f'inquiry/{inq.id}')
-            data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue('created_at' in data['data'])
-            self.assertIn('Are you even test?', data['data']['title'])
-            self.assertIn('success', data['status'])
-
-
-    def test_single_inquiry_restful(self):
-        """test getting inquiry by id - restful route"""
 
         inq = add_inquiry(title="Are you even test?")
         with self.client:
@@ -60,7 +49,6 @@ class TestinquiryService(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertTrue('created_at' in data)
             self.assertIn('Are you even test?', data['title'])
-
 
     def test_inq_view(self):
         """

@@ -24,6 +24,7 @@ def add_inquiry(resp):
         return make_response(jsonify(response_object)), 400
 
     title = post_data.get('title')
+    user_id = None
     if "user_id" in post_data:
         user_id = post_data["user_id"]
 
@@ -54,45 +55,6 @@ def add_inquiry(resp):
         }
         return make_response(jsonify(response_object)), 400
 
-@inquiry_blueprint.route('/inquiries', methods=['GET'])
-def get_inquiries():
-
-    inquiry = Inquiry.query.all()
-    data_list = [{'id': i.id, 'title': i.title, 'created_at': i.created_at,
-    'questions': [f'{q}' for q in i.questions]} for i in inquiry]
-
-    response_object = {
-        'status': 'success',
-        'data': data_list,
-    }
-    return jsonify(response_object), 200
-
-@inquiry_blueprint.route('/inquiry/<inquiry_id>', methods=['GET'])
-def get_single_inquiry(inquiry_id):
-    """Get single inquiry details"""
-    response_object = {
-        'status': 'fail',
-        'message': 'inquiry does not exist'
-    }
-    try:
-        inquiry = Inquiry.query.filter_by(id=inquiry_id).first()
-        if not inquiry:
-            return make_response(jsonify(response_object)), 404
-        else:
-            response_object = {
-                'status': 'success',
-                'data': {
-                    'id': inquiry.id,
-                    'title': inquiry.title,
-                    'created_at': inquiry.created_at,
-                    'questions': ["{}:{}".format(q.id, q.title) for q in inquiry.questions]
-                }
-            }
-            return make_response(jsonify(response_object)), 200
-    except ValueError:
-        return make_response(jsonify(response_object)), 404
-
-
 @inquiry_blueprint.route('/inq-view/<inq_id>', methods=['GET'])
 def get_inq_view(inq_id):
     """
@@ -108,17 +70,17 @@ def get_inq_view(inq_id):
         if not inquiry:
             return make_response(jsonify(response_object)), 404
         else:
-            query = f"""SELECT questgroup.inquiries as inq_id,
-                questions.id AS q_id,
-                choices.id AS c_id,
-                questions.title,
+            query = f"""select inquiries.id as inq_id,
+		inquiries.title as inq_title,
+		questions.id as q_id,
+		choices.id as c_id,
                 choices.text,
-                questions.multichoice,
-                questions.created_at
-            FROM questgroup
-                JOIN questions ON questions.id::text = questgroup.questions::text
-                JOIN choices ON questions.id::text = choices.question_id::text
-            WHERE questgroup.inquiries::text = '{inq_id}'::text;
+		questions.title as q_title,
+		questions.multichoice
+            from inquiries
+                join questions on questions.inq_id::text = inquiries.id::text
+                join choices on questions.id::text = choices.question_id::text
+            WHERE inquiries.id::text = '{inq_id}'::text;
             """
 
 
@@ -133,14 +95,13 @@ def get_inq_view(inq_id):
             data = [dict(zip(keys, row)) for row in res_data]
 
             # make dict with empty lists as values
-            questions = {row["title"]: dict(choice=dict(), multichoice=False) for row in data}
+            questions = {row["q_title"]: dict(choice=dict(), multichoice=False) for row in data}
             # fill these values with choices
             #[questions[row["title"]].append(row["text"]) for row in data]
-            print(questions)
             for row in data:
-                questions[row["title"]]["choice"][row["c_id"]] = row["text"]
-                questions[row["title"]]["multichoice"] = row["multichoice"]
-                questions[row["title"]]["question_id"] = row["q_id"]
+                questions[row["q_title"]]["choice"][row["c_id"]] = row["text"]
+                questions[row["q_title"]]["multichoice"] = row["multichoice"]
+                questions[row["q_title"]]["question_id"] = row["q_id"]
 
             response_object = {
                 'status': 'success',

@@ -1,22 +1,15 @@
 import json, uuid
 from services.questmaker.tests.base import BaseTestCase
-from services.questmaker.tests.utils import add_quest, add_user
+from services.questmaker.tests.utils import add_quest, add_user, add_inquiry
 
 class TestQuestionService(BaseTestCase):
     """Tests for the Questions Service."""
 
-    def test_questions(self):
-        """Ensure the /ping route behaves correctly."""
-        response = self.client.get('/ping')
-        data = json.loads(response.data.decode())
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('pong!', data['message'])
-        self.assertIn('success', data['status'])
-
     def test_add_question(self):
         """Ensure that creating new question behaves normal"""
-        with self.client:
 
+        inq = add_inquiry(title="test inq")
+        with self.client:
             user = add_user('test', 'test@test.com', 'test')
             resp_login = self.client.post(
                 '/auth/login',
@@ -26,11 +19,12 @@ class TestQuestionService(BaseTestCase):
                 )),
                 content_type='application/json'
             )
-
             response = self.client.post(
-                "/quest",
+                '/questions',
                 data=json.dumps(dict(
-                    title="Can you read?"
+                    title="Can you read?",
+                    multichoice=False,
+                    inq_id=inq.id,
                 )),
                 content_type='application/json',
                 headers=dict(
@@ -40,33 +34,31 @@ class TestQuestionService(BaseTestCase):
                 )
             )
 
-            data = json.loads(response.data.decode())
+            #data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
-            self.assertIn('success', data['status'])
 
     def test_get_all_questions(self):
         """Check get request for all questions"""
-        response = self.client.get('/quest')
+        response = self.client.get('/questions')
         data = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
-        self.assertIn('success', data['status'])
 
 
     def test_single_quest(self):
         """test getting question by id"""
-
-        q = add_quest(title="Are you even test?")
+        inq = add_inquiry(title="test inq")
+        q = add_quest(title="Are you even test?", inq=inq)
         with self.client:
-            response = self.client.get(f'quest/{q.id}')
+            response = self.client.get(f'question/{q.id}')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertTrue('created_at' in data['data'])
-            self.assertIn('Are you even test?', data['data']['title'])
-            self.assertIn('success', data['status'])
+            self.assertTrue('created_at' in data)
+            self.assertIn('Are you even test?', data['title'])
 
     def test_edit_quest(self):
         """create and then edit test"""
-        q = add_quest(title="Are you even test?")
+        inq = add_inquiry(title="test inq")
+        q = add_quest(title="Are you even test?", inq=inq)
         with self.client:
             # login
             user = add_user('test', 'test@test.com', 'test')
@@ -98,6 +90,7 @@ class TestQuestionService(BaseTestCase):
 
     def test_create_question_by_put(self):
         """creates question using put"""
+        inq = add_inquiry(title="test inq")
         random_id = uuid.uuid4()
         with self.client:
             # login
@@ -115,6 +108,7 @@ class TestQuestionService(BaseTestCase):
                 data=json.dumps(dict(
                     title="Can you read?",
                     multichoice=False,
+                    inq_id=inq.id,
                 )),
                 content_type='application/json',
                 headers=dict(

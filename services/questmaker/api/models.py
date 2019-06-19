@@ -91,8 +91,11 @@ class Question(db.Model):
     choices = db.relationship("Choice", backref=db.backref('question', lazy=True))
     inq_id = db.Column(db.String(128), db.ForeignKey('inquiries.id'), nullable=False)
 
-    def __init__(self, title, multichoice=False, created_at=datetime.datetime.now()):
-        self.id = str(uuid.uuid1())
+    def __init__(self, title, multichoice=False, created_at=datetime.datetime.now(), id=None):
+        if id:
+            self.id = id
+        else:
+            self.id = str(uuid.uuid1())
         self.title = title
         self.created_at = created_at
         self.multichoice = multichoice
@@ -108,8 +111,11 @@ class Choice(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
     question_id = db.Column(db.String(128), db.ForeignKey('questions.id'), nullable=False)
 
-    def __init__(self, text, question_id, value=None, created_at=datetime.datetime.now()):
-        self.id = str(uuid.uuid1())
+    def __init__(self, text, question_id, value=None, created_at=datetime.datetime.now(), id=None):
+        if id:
+            self.id = id
+        else:
+            self.id = str(uuid.uuid1())
         self.text = text
         self.value = value
         self.created_at = created_at

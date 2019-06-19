@@ -30,13 +30,11 @@ def create_app():
     api = Api(app)
 
     # register blueprint
-    from services.questmaker.api.questions import questions_blueprint
     from services.questmaker.api.choices import choices_blueprint
     from services.questmaker.api.inquiry import inquiry_blueprint
     from services.questmaker.api.users import users_blueprint
     from services.questmaker.api.auth import auth_blueprint
 
-    app.register_blueprint(questions_blueprint)
     app.register_blueprint(choices_blueprint)
     app.register_blueprint(inquiry_blueprint)
     app.register_blueprint(users_blueprint)
@@ -53,7 +51,7 @@ def create_app():
     from services.questmaker.api.questions import (QuestionRoute,
     QuestionListRoute)
     api.add_resource(QuestionRoute, '/question/<quest_id>')
-    api.add_resource(QuestionListRoute, '/questions/')
+    api.add_resource(QuestionListRoute, '/questions')
 
     return app
 
