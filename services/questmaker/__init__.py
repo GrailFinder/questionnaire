@@ -5,7 +5,6 @@ from flask_restful import Api
 import os
 from flask_cors import CORS, cross_origin
 
-
 # instantiate the db
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -40,9 +39,11 @@ def create_app():
     app.register_blueprint(users_blueprint)
     app.register_blueprint(auth_blueprint)
 
-    from services.questmaker.api.inquiry import InquiryRoute, InquiryListRoute
+    from services.questmaker.api.inquiry import (InquiryRoute,
+            InquiryListRoute, UserInqs,)
     api.add_resource(InquiryRoute, '/inq/<inquiry_id>')
     api.add_resource(InquiryListRoute, '/inqs/')
+    api.add_resource(UserInqs, '/uinqs/<user_id>')
 
     from services.questmaker.api.answers import AnswerListRoute, AnswerRoute
     api.add_resource(AnswerListRoute, '/answers')

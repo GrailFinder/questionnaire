@@ -81,6 +81,19 @@ class Inquiry(db.Model): # Опросник
     def __str__(self):
         return f'{self.title}: {self.id}'
 
+    @property
+    def serialize(self):
+        return {
+                'id': self.id,
+                'title': self.title,
+                'created_at': str(self.created_at),
+                'updated_at': str(self.updated_at),
+                'description': self.description,
+                'public': self.public,
+                'user_id': self.user_id,
+                'questions': [q.serialize for q in self.questions],
+            }
+
 
 class Question(db.Model):
     __tablename__ = "questions"
@@ -103,6 +116,17 @@ class Question(db.Model):
     def __str__(self):
         return f'{self.title}: {self.id}'
 
+    @property
+    def serialize(self):
+        return {
+                'id': self.id,
+                'title': self.title,
+                'created_at': str(self.created_at),
+                'multichoice': self.multichoice,
+                'inq_id': self.inq_id,
+                'choices': [c.serialize for c in self.choices],
+            }
+
 class Choice(db.Model):
     __tablename__ = "choices"
     id = db.Column(db.String(128), nullable=False, primary_key=True)
@@ -118,11 +142,22 @@ class Choice(db.Model):
             self.id = str(uuid.uuid1())
         self.text = text
         self.value = value
-        self.created_at = created_at
+        self.created_at = str(created_at)
         self.question_id = question_id
 
     def __str__(self):
         return f'{self.title}: {self.id}'
+
+    @property
+    def serialize(self):
+        return {
+                'id': self.id,
+                'text': self.text,
+                'value': self.value,
+                'created_at': self.created_at,
+                'question_id': self.question_id,
+            }
+
 
 class Answer(db.Model):
     __tablename__ = "answers"
@@ -131,6 +166,8 @@ class Answer(db.Model):
     question = db.Column(db.String(128), db.ForeignKey('questions.id'), nullable=False)
     inq = db.Column(db.String(128), db.ForeignKey('inquiries.id'), nullable=False)
     user = db.Column(db.String(128), db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False,
+            server_default=db.func.now())
 
     def __init__(self, **kwargs):
         #https://stackoverflow.com/questions/20460339/flask-sqlalchemy-constructor

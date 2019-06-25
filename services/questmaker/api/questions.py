@@ -109,6 +109,9 @@ class QuestionListRoute(Resource):
                 if inq_id:
                     # get the inq object
                     inq = Inquiry.query.filter_by(id=inq_id).first()
+                    if not inq:
+                        response_object["message"] = "no such inquiry exists"
+                        return make_response(jsonify(response_object), 403)
                     inq.questions.append(quest)
 
                 db.session.add(quest)

@@ -16,7 +16,6 @@ class TestAnswerService(BaseTestCase):
 
         answ_fields = {
             #"id": fields.String,
-            "inq_id": inq.id,
             "quest_id": q.id,
             "choice_id": ch.id,
         }
@@ -26,7 +25,9 @@ class TestAnswerService(BaseTestCase):
             response = self.client.post(
                 "/answers",
                 # put answer in list
-                data=json.dumps([answ_fields]),
+                data=json.dumps({'answers': [answ_fields],
+                        "inq_id": inq.id,
+                    }),
                 content_type='application/json',
             )
             data = json.loads(response.data.decode())

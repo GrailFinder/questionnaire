@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request, make_response, render_template, current_app, abort
 from flask_restful import Resource, fields, marshal_with, reqparse
 from sqlalchemy import exc, text
-from services.questmaker.api.models import Inquiry
-from services.questmaker.api.utils import authenticate
+from services.questmaker.api.models import Inquiry, Question, Choice, Answer
+from services.questmaker.api.utils import authenticate, is_valid_uuid
 from services.questmaker import db
 import os, sys, uuid
 import json
@@ -83,6 +83,14 @@ def get_inq_view(inq_id):
             WHERE inquiries.id::text = '{inq_id}'::text;
             """
 
+            """
+            result = db.session.query(Question, Choice).join(Choice,
+                    Question.id == Choice.question_id)\
+                .filter(Question.inq_id==inq_id).all()
+            # result is a list of objects (questions, choices)
+            return make_response(jsonify(result), 200)
+            """
+
 
             raw_result = db.engine.execute(text(query))
 
@@ -139,6 +147,7 @@ resourse_fields = {
     'description': fields.String,
     'questions': fields.List(fields.Nested(question_fields)),
     'user_id': fields.String,
+    'public': fields.Boolean,
 }
 
 parser = reqparse.RequestParser()
@@ -153,10 +162,17 @@ class InquiryRoute(Resource):
         return inq
 
     @authenticate
-    def delete(self, inquiry_id):
-        # TODO add exception and stuff
-        Inquiry.query.delete(id=inquiry_id)
-        return 204
+    def delete(self, resp, inquiry_id):
+        resp = {
+                'status': 'fail',
+                'id': inquiry_id,
+                }
+        try:
+            Inquiry.query.filter_by(id=inquiry_id).delete()
+            db.session.commit()
+        except Exception as e:
+            return make_response(jsonify(resp), 400)
+        return "", 204
 
 
 class InquiryListRoute(Resource):
@@ -204,3 +220,24 @@ class InquiryListRoute(Resource):
                 'message': 'Invalid payload.'
             }
             return 400, 400
+
+class UserInqs(Resource):
+    def get(self, user_id):
+        bad_resp = {
+            "status": "fail",
+            "message": "something went wrong",
+        }
+
+        if not is_valid_uuid(user_id):
+            return make_response(jsonify(bad_resp), 404)
+
+        unanswered_inqs = db.session.query(Inquiry, Answer).outerjoin(Answer,
+                Inquiry.id==Answer.inq).filter(
+                (Answer.user!=user_id) | (Answer.user==None)
+            ).all()
+
+        unanswered_inqs = [el.serialize for tupel in unanswered_inqs
+                for el in tupel if type(el) == Inquiry]
+        return make_response(jsonify(unanswered_inqs), 200)
+
+
