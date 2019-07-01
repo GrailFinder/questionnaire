@@ -1,27 +1,18 @@
 from flask import jsonify, request, make_response, render_template, current_app
 from sqlalchemy import exc
 from services.questmaker.api.models import Question, Inquiry
+from services.questmaker.api.inquiry import question_fields as resource_fields
 from services.questmaker.api.utils import authenticate
 from services.questmaker import db
-from flask_restful import Resource, fields, marshal_with, reqparse
+from flask_restplus import Resource, fields, marshal_with, reqparse, Namespace
 
+api = Namespace("quests", description="questions crud")
 
-choice_fields = {
-    'id': fields.String,
-    'text': fields.String,
-    'value': fields.String,
-    'created_at': fields.DateTime,
-    'question_id': fields.String,
-    }
-
-resourse_fields = {
-    'id': fields.String,
-    'title': fields.String,
-    'created_at': fields.DateTime,
-    'multichoice': fields.Boolean,
-    'choices': fields.List(fields.Nested(choice_fields)),
-}
+@api.route("/<string:quest_id>")
 class QuestionRoute(Resource):
+
+    @api.response(204, "Success")
+    @api.response(400, "Validation error")
     @authenticate
     def delete(self, resp, quest_id):
         bad_resp = {
@@ -35,6 +26,8 @@ class QuestionRoute(Resource):
             return make_response(jsonify(bad_resp)), 400
         return "", 204
 
+    @api.response(204, "Success")
+    @api.response(400, "Validation error")
     @authenticate
     def put(self, resp, quest_id):
         put_data = request.get_json()
@@ -62,22 +55,25 @@ class QuestionRoute(Resource):
             quest.title = put_data["title"]
             quest.multichoice = put_data["multichoice"]
         db.session.commit()
-        return None, 204
+        return "", 204
 
-    @marshal_with(resourse_fields)
+    @marshal_with(resource_fields)
     def get(self, quest_id):
         quest = Question.query.filter_by(id=quest_id).first()
         if not quest:
             return abort(404)
         return quest
 
+@api.route("/")
 class QuestionListRoute(Resource):
 
-    @marshal_with(resourse_fields)
+    @marshal_with(resource_fields)
     def get(self):
         return Question.query.all()
 
     @authenticate
+    @api.response(201, "Success")
+    @api.response(400, "Validation error")
     def post(self, resp):
 
         response_object = {

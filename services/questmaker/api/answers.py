@@ -1,4 +1,4 @@
-from flask_restful import Resource, fields, marshal_with, reqparse
+from flask_restplus import Resource, fields, marshal_with, reqparse, Namespace
 from flask import abort, request, current_app, jsonify
 from sqlalchemy import exc, text as alchemy_text
 from services.questmaker.api.models import Answer
@@ -6,6 +6,7 @@ from services.questmaker import db
 from services.questmaker.api.utils import is_valid_uuid, authenticate
 import uuid
 
+api = Namespace("answers", description="answers crud")
 
 answ_fields = {
     "id": fields.String,
@@ -15,6 +16,7 @@ answ_fields = {
     "user": fields.String,
 }
 
+@api.route("/<string:answer_id>")
 class AnswerRoute(Resource):
     """
     Answer to the question;
@@ -31,6 +33,7 @@ class AnswerRoute(Resource):
     #     """does it need to exist?"""
     #     Answer.query.filter_by(id=id).delete()
 
+@api.route("/")
 class AnswerListRoute(Resource):
     @marshal_with(answ_fields)
     def get(self):
@@ -46,6 +49,8 @@ class AnswerListRoute(Resource):
         current_app.logger.info([answer.__dict__ for answer in answers])
         return [answer.__dict__ for answer in answers]
 
+    @api.response(201, "Success")
+    @api.response(400, "Validation error")
     def post(self):
         """
         how to create answer?
@@ -77,8 +82,8 @@ class AnswerListRoute(Resource):
 
                 # if its known user
                 answered = db.session.query(Answer).filter(
-                        (Answers.user==user_id) |
-                        (Answers.inq==inq_id)).count()
+                        (Answer.user==user_id) |
+                        (Answer.inq==inq_id)).count()
                 if answered > 0:
                     print("answered:", answered)
                     bad_resp['message'] = f"user {user_id} already answered that inquiry {inq_id}"
@@ -111,6 +116,7 @@ class AnswerListRoute(Resource):
             }
             return 400, 400
 
+#TODO there must be a better way
 answ_view_fields = {
     "id": fields.String,
     "q_id": fields.String,
@@ -124,6 +130,7 @@ answ_view_fields = {
     "created_at": fields.DateTime,
 }
 
+@api.route("/view/<string:inq_id>")
 class AnswerView(Resource):
     """only get"""
     @marshal_with(answ_view_fields)

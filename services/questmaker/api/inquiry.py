@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response, render_template, current_app, abort
-from flask_restful import Resource, fields, marshal_with, reqparse
+from flask_restplus import Resource, fields, marshal_with, Namespace
 from sqlalchemy import exc, text
 from services.questmaker.api.models import Inquiry, Question, Choice, Answer
 from services.questmaker.api.utils import authenticate, is_valid_uuid
@@ -7,139 +7,25 @@ from services.questmaker import db
 import os, sys, uuid
 import json
 
-inquiry_blueprint = Blueprint('inquiry', __name__, template_folder='./templates')
 
+api = Namespace("inqs", description="inquiry related operations")
 
-@inquiry_blueprint.route('/inquiries', methods=['POST'])
-@authenticate
-def add_inquiry(resp):
-
-    # get data from request
-    post_data = request.get_json()
-    if not post_data:
-        response_object = {
-            'status': 'fail',
-            'message': 'Invalid payload.'
-        }
-        return make_response(jsonify(response_object)), 400
-
-    title = post_data.get('title')
-    user_id = None
-    if "user_id" in post_data:
-        user_id = post_data["user_id"]
-
-    try:
-        inquiry = Inquiry.query.filter_by(title=resp).first()
-        if not inquiry: # if there was no such inquiry in db
-            id = str(uuid.uuid1())
-            db.session.add(Inquiry(title=title, user_id=user_id, id=id))
-            db.session.commit()
-            response_object = {
-                'status': 'success',
-                'message': f'{title} was added!',
-                'id': id,
-            }
-            return make_response(jsonify(response_object)), 201
-        else:
-            response_object = {
-                'status': 'fail',
-                'message': 'That inquiry already exists.'
-            }
-            return make_response(jsonify(response_object)), 400
-    except (exc.IntegrityError, ValueError) as e:
-        current_app.logger.info(e)
-        db.session().rollback()
-        response_object = {
-            'status': 'fail',
-            'message': 'Invalid payload.'
-        }
-        return make_response(jsonify(response_object)), 400
-
-@inquiry_blueprint.route('/inq-view/<inq_id>', methods=['GET'])
-def get_inq_view(inq_id):
-    """
-    instead of view in postgress, make joins in this method
-    all inq info in one request
-    """
-    response_object = {
-        'status': 'fail',
-        'message': 'inquiry does not exist'
-    }
-    try:
-        inquiry = Inquiry.query.filter_by(id=inq_id).first()
-        if not inquiry:
-            return make_response(jsonify(response_object)), 404
-        else:
-            query = f"""select inquiries.id as inq_id,
-		inquiries.title as inq_title,
-		questions.id as q_id,
-		choices.id as c_id,
-                choices.text,
-		questions.title as q_title,
-		questions.multichoice
-            from inquiries
-                join questions on questions.inq_id::text = inquiries.id::text
-                join choices on questions.id::text = choices.question_id::text
-            WHERE inquiries.id::text = '{inq_id}'::text;
-            """
-
-            """
-            result = db.session.query(Question, Choice).join(Choice,
-                    Question.id == Choice.question_id)\
-                .filter(Question.inq_id==inq_id).all()
-            # result is a list of objects (questions, choices)
-            return make_response(jsonify(result), 200)
-            """
-
-
-            raw_result = db.engine.execute(text(query))
-
-            # get column names
-            keys = raw_result.keys()
-
-            # get data
-            res_data = raw_result.fetchall()
-
-            data = [dict(zip(keys, row)) for row in res_data]
-
-            # make dict with empty lists as values
-            questions = {row["q_title"]: dict(choice=dict(), multichoice=False) for row in data}
-            # fill these values with choices
-            #[questions[row["title"]].append(row["text"]) for row in data]
-            for row in data:
-                questions[row["q_title"]]["choice"][row["c_id"]] = row["text"]
-                questions[row["q_title"]]["multichoice"] = row["multichoice"]
-                questions[row["q_title"]]["question_id"] = row["q_id"]
-
-            response_object = {
-                'status': 'success',
-                'data': questions
-            }
-            return make_response(jsonify(response_object)), 200
-    except ValueError:
-        return make_response(jsonify(response_object)), 404
-
-
-@inquiry_blueprint.route('/', methods=['GET'])
-def show_index():
-    inquiries = Inquiry.query.all()
-    return render_template('index.html', inquiries=inquiries)
-
-@inquiry_blueprint.route('/front-inq/<inquiry_id>', methods=['GET'])
-def show_inquiry(inquiry_id):
-    inquiry = Inquiry.query.filter_by(id=inquiry_id).first()
-    return render_template('inquiry.html', questions=inquiry.questions)
-
-
+choice_fields = {
+    'id': fields.String,
+    'text': fields.String,
+    'value': fields.String,
+    'created_at': fields.DateTime,
+}
 
 question_fields = {
     'id': fields.String,
     'title': fields.String,
     'created_at': fields.DateTime,
     'multichoice': fields.Boolean,
+    'choices': fields.List(fields.Nested(choice_fields)),
 }
 
-resourse_fields = {
+resource_fields = {
     'id': fields.String,
     'title': fields.String,
     'created_at': fields.DateTime,
@@ -150,19 +36,28 @@ resourse_fields = {
     'public': fields.Boolean,
 }
 
-parser = reqparse.RequestParser()
-parser.add_argument('title')
 
+@api.route("/<string:inquiry_id>")
+@api.param("inquiry_id", "inquiry identifier")
+@api.doc(params={'inquiry_id': 'An ID'})
 class InquiryRoute(Resource):
-    @marshal_with(resourse_fields)
+    @marshal_with(resource_fields)
     def get(self, inquiry_id):
+        '''
+        Get an inquiry by id
+        '''
         inq = Inquiry.query.filter_by(id=inquiry_id).first()
         if not inq:
             return abort(404)
         return inq
 
+    @api.response(204, "Success")
+    @api.response(400, 'Validation Error')
     @authenticate
     def delete(self, resp, inquiry_id):
+        '''
+        Delete an inquiry by id
+        '''
         resp = {
                 'status': 'fail',
                 'id': inquiry_id,
@@ -175,23 +70,37 @@ class InquiryRoute(Resource):
         return "", 204
 
 
+@api.route("/")
 class InquiryListRoute(Resource):
-    @marshal_with(resourse_fields)
+    @marshal_with(resource_fields)
     def get(self):
+        '''
+        List all inquiries
+        '''
         return Inquiry.query.all()
 
     # without authentication should create anon inq
     # available for everyone
+    @api.response(201, "Success")
+    @api.response(400, 'Validation Error')
+    #@api.expect(parser)
     def post(self):
-        #args = parser.parse_args()
+        '''
+        Create an inquiry
+        '''
         post_data = request.get_json()
-        title = post_data.get('title')
-        # check for other keys like user_id
-        user_id = None
 
-        # dont use user_id from front anyway
-        if "user_id" in post_data:
-            user_id = post_data["user_id"]
+        if not post_data or 'title' not in post_data:
+            response_object = {
+                'status': 'fail',
+                'message': 'Invalid payload.'
+            }
+            return make_response(jsonify(response_object), 400)
+
+
+        title = post_data.get('title')
+        user_id = post_data.get('user_id')
+        description = post_data.get('description')
 
         current_app.logger.info(f"post title: {title}, user_id: {user_id}")
 
@@ -200,7 +109,8 @@ class InquiryListRoute(Resource):
             if not inquiry: # if there was no such inquiry in db
                 id = str(uuid.uuid1())
                 current_app.logger.info(f"going to make response: {id}")
-                db.session.add(Inquiry(title=title, id=id, user_id=user_id))
+                db.session.add(Inquiry(title=title, id=id,
+                    description=description, user_id=user_id))
                 db.session.commit()
                 response_object = {
                     'id': id,
@@ -219,10 +129,16 @@ class InquiryListRoute(Resource):
                 'status': 'fail',
                 'message': 'Invalid payload.'
             }
-            return 400, 400
+            return make_response(jsonify(response_object), 400)
 
+@api.route("/by_user/<string:user_id>")
+@api.param("user_id", "user identifier")
+@api.doc(params={'user_id': 'An ID of user to filter out inquiries that already has been taken'})
 class UserInqs(Resource):
     def get(self, user_id):
+        '''
+        Get inquiries that given user did not took yet
+        '''
         bad_resp = {
             "status": "fail",
             "message": "something went wrong",
@@ -231,13 +147,25 @@ class UserInqs(Resource):
         if not is_valid_uuid(user_id):
             return make_response(jsonify(bad_resp), 404)
 
-        unanswered_inqs = db.session.query(Inquiry, Answer).outerjoin(Answer,
+        query = db.session.query(Inquiry, Answer).outerjoin(Answer,
                 Inquiry.id==Answer.inq).filter(
                 (Answer.user!=user_id) | (Answer.user==None)
-            ).all()
+            )
 
+        query = f"""select * from inquiries
+            where inquiries.id not in (select inq from answers
+            where answers.user = '{user_id}');"""
+
+        unanswered_inqs = db.session.query(Inquiry).from_statement(text(
+                query
+            )).all()
+        unanswered_inqs = [el.serialize for el in unanswered_inqs]
+
+        '''
+        unanswered_inqs = query.all()
         unanswered_inqs = [el.serialize for tupel in unanswered_inqs
                 for el in tupel if type(el) == Inquiry]
+        '''
         return make_response(jsonify(unanswered_inqs), 200)
 
 

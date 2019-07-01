@@ -102,7 +102,8 @@ class Question(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
     multichoice = db.Column(db.Boolean)
     choices = db.relationship("Choice", backref=db.backref('question', lazy=True))
-    inq_id = db.Column(db.String(128), db.ForeignKey('inquiries.id'), nullable=False)
+    inq_id = db.Column(db.String(128), db.ForeignKey('inquiries.id', ondelete="CASCADE"),
+            nullable=False)
 
     def __init__(self, title, multichoice=False, created_at=datetime.datetime.now(), id=None):
         if id:
@@ -133,7 +134,9 @@ class Choice(db.Model):
     text = db.Column(db.Text, nullable=False)
     value = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False)
-    question_id = db.Column(db.String(128), db.ForeignKey('questions.id'), nullable=False)
+    question_id = db.Column(db.String(128),
+            db.ForeignKey('questions.id', ondelete="CASCADE"),
+            nullable=False)
 
     def __init__(self, text, question_id, value=None, created_at=datetime.datetime.now(), id=None):
         if id:
