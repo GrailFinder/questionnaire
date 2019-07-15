@@ -8,6 +8,12 @@ from flask_restplus import Resource, fields, marshal_with, reqparse, Namespace
 
 api = Namespace("quests", description="questions crud")
 
+quest_form = api.model("QuestionForm", {
+        "title": fields.String(required=True),
+        "multichoice": fields.Boolean,
+        "inq_id": fields.String(required=True),
+    })
+
 @api.route("/<string:quest_id>")
 class QuestionRoute(Resource):
 
@@ -29,6 +35,7 @@ class QuestionRoute(Resource):
     @api.response(204, "Success")
     @api.response(400, "Validation error")
     @authenticate
+    @api.expect(quest_form)
     def put(self, resp, quest_id):
         put_data = request.get_json()
         if "title" not in put_data or "multichoice" not in put_data:
@@ -74,6 +81,7 @@ class QuestionListRoute(Resource):
     @authenticate
     @api.response(201, "Success")
     @api.response(400, "Validation error")
+    @api.expect(quest_form)
     def post(self, resp):
 
         response_object = {

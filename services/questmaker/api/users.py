@@ -7,37 +7,38 @@ from flask_restplus import Resource, fields, marshal_with, reqparse, Namespace
 from services.questmaker.api.models import User
 from services.questmaker import db
 from services.questmaker.api.utils import is_valid_uuid
-from services.questmaker.api.inquiry import resource_fields as inq_fields
+from services.questmaker.api.inquiry import user_fields
 
 api = Namespace("users", description="users crud")
 
-user_fields = {
-    'id': fields.String,
-    'username': fields.String,
-    'email': fields.String,
-    'password': fields.String,
-    'active': fields.String,
-    'admin': fields.String,
-    'created_at': fields.DateTime,
-    'inquiries': fields.List(fields.Nested(inq_fields))
-}
-
 @api.route("/")
 class UserListRoute(Resource):
+
+    user_form = api.model("UserForm", {
+            "username": fields.String(required=True),
+            "email": fields.String(required=True),
+            "password": fields.String(required=True),
+        })
+
     @marshal_with(user_fields)
     def get(self):
         return User.query.all()
 
-    @api.response(204, "Success")
+    @api.response(201, "Success")
     @api.response(400, "Validation error")
-    def post():
+    @api.expect(user_form)
+    def post(self):
+        """
+        Its better to use /auth/register route instead
+        """
         post_data = request.get_json()
+        print(post_data)
         if not post_data:
             response_object = {
                 'status': 'fail',
                 'message': 'Invalid payload.'
             }
-            return make_response(jsonify(response_object)), 400
+            return make_response(jsonify(response_object), 400)
         username = post_data.get('username')
         email = post_data.get('email')
         password = post_data.get('password')
@@ -48,22 +49,23 @@ class UserListRoute(Resource):
                 db.session.commit()
                 response_object = {
                     'status': 'success',
-                    'message': f'{email} was added!'
+                    'message': f'{email} was added!',
+                    'user_id': user.id,
                 }
-                return make_response(jsonify(response_object)), 201
+                return make_response(jsonify(response_object), 201)
             else:
                 response_object = {
                     'status': 'fail',
                     'message': 'Sorry. That email already exists.'
                 }
-                return make_response(jsonify(response_object)), 400
+                return make_response(jsonify(response_object), 400)
         except (exc.IntegrityError, ValueError) as e:
             db.session().rollback()
             response_object = {
                 'status': 'fail',
                 'message': 'Invalid payload.'
             }
-            return make_response(jsonify(response_object)), 400
+            return make_response(jsonify(response_object), 400)
 
 
 @api.route("/<string:user_id>")

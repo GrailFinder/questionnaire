@@ -8,10 +8,18 @@ from flask_restplus import Resource, fields, marshal_with, reqparse, Namespace
 
 api = Namespace("choices", description="choices crud")
 
+choice_form = api.model("ChoiceForm",
+    {
+        "question_id": fields.String(required=True),
+        "text": fields.String(required=True),
+        "value": fields.String,
+    })
+
 @api.route("/")
 class ChoicesListRoute(Resource):
     @api.response(201, "Success")
     @api.response(400, 'Validation Error')
+    @api.expect(choice_form)
     def post():
         # get data from request
         post_data = request.get_json()

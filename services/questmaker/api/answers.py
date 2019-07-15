@@ -16,11 +16,18 @@ answ_fields = {
     "user": fields.String,
 }
 
+answer_form = api.model("AnswerForm", {
+    "inq_id": fields.String(required=True),
+    "quest_id": fields.String(required=True),
+    "choice_id": fields.String(required=True),
+    "user_id": fields.String,
+})
+
 @api.route("/<string:answer_id>")
 class AnswerRoute(Resource):
     """
     Answer to the question;
-    YAGNI deleting and editing created answers
+    Table that keeps ids of inquiry, question, answer and user
     """
     @marshal_with(answ_fields)
     def get(self, id):
@@ -35,6 +42,7 @@ class AnswerRoute(Resource):
 
 @api.route("/")
 class AnswerListRoute(Resource):
+
     @marshal_with(answ_fields)
     def get(self):
         args = request.args
@@ -51,6 +59,7 @@ class AnswerListRoute(Resource):
 
     @api.response(201, "Success")
     @api.response(400, "Validation error")
+    @api.expect(answer_form)
     def post(self):
         """
         how to create answer?

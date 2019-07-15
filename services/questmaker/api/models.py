@@ -1,13 +1,11 @@
 from services.questmaker import db, bcrypt
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import relationship
 import datetime, uuid
 from flask import current_app
 import jwt
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
-
-inqowner = db.Table("inqowner",
-    db.Column('users', db.String(128), db.ForeignKey('users.id'), primary_key=True),
-    db.Column('inquiries', db.String(128), db.ForeignKey('inquiries.id'), primary_key=True)
-)
 
 class User(db.Model):
     __tablename__ = "users"
@@ -18,7 +16,7 @@ class User(db.Model):
     active = db.Column(db.Boolean(), default=True, nullable=False)
     admin = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
-    inquiries = db.relationship("Inquiry", secondary=inqowner, backref=db.backref('owner', lazy='dynamic'))
+
 
     def __init__(self, username, email, password):
         self.id = str(uuid.uuid1())
@@ -66,15 +64,22 @@ class Inquiry(db.Model): # Опросник
     description = db.Column(db.Text, nullable=True)
     public = db.Column(db.Boolean, default=False, nullable=False)
     questions = db.relationship("Question", backref=db.backref('inquiry', lazy=True))
-    user_id = db.Column(db.String(128), db.ForeignKey('users.id'), nullable=True)
+    creator_id = db.Column(db.String(128),
+            db.ForeignKey('users.id', ondelete="CASCADE"), nullable=True)
+    creator = relationship(User, backref="inquiries")
+    # users that allowed to see results
+    allowed_users = association_proxy('allowed_users', 'users',
+                    creator=lambda k, v:
+                                AllowedUsers(inq_id=k, user=v)
+                )
 
-    def __init__(self, title, user_id=None, description=None, id=None):
+    def __init__(self, title, creator_id=None, description=None, id=None):
         if not id:
             self.id = str(uuid.uuid1())
         else:
             self.id = id
 
-        self.user_id = user_id
+        self.creator_id = creator_id
         self.title = title
         self.description = description
 
@@ -90,9 +95,25 @@ class Inquiry(db.Model): # Опросник
                 'updated_at': str(self.updated_at),
                 'description': self.description,
                 'public': self.public,
-                'user_id': self.user_id,
+                'creator_id': self.creator_id,
                 'questions': [q.serialize for q in self.questions],
+                'allowed_users': [u.serialize for u in self.allowed_users]
             }
+
+
+class AllowedUsers(db.Model):
+    """Users that can see results to inquiries"""
+    __tablename__ = "allowed_users"
+    id = db.Column(db.String(128), nullable=False, primary_key=True)
+    inq_id = db.Column(db.String(128), db.ForeignKey('inquiries.id'),
+            nullable=False, primary_key=True)
+    user_id = db.Column(db.String(128), db.ForeignKey('users.id'),
+            nullable=False, primary_key=True)
+    users = relationship(User)
+    inquiry = relationship(Inquiry, backref="allowed_users",
+            collection_class=attribute_mapped_collection("inq_id"),
+            cascade="all, delete-orphan", single_parent=True)
+
 
 
 class Question(db.Model):

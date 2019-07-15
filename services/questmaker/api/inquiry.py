@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, make_response, render_template, current_app, abort
 from flask_restplus import Resource, fields, marshal_with, Namespace
 from sqlalchemy import exc, text
-from services.questmaker.api.models import Inquiry, Question, Choice, Answer
+from services.questmaker.api.models import (Inquiry,
+        Question, Choice, Answer, User)
 from services.questmaker.api.utils import authenticate, is_valid_uuid
 from services.questmaker import db
 import os, sys, uuid
@@ -25,6 +26,14 @@ question_fields = {
     'choices': fields.List(fields.Nested(choice_fields)),
 }
 
+allowed_users = {
+    'id': fields.String,
+    'username': fields.String,
+    'email': fields.String,
+    'active': fields.String,
+    'created_at': fields.DateTime,
+}
+
 resource_fields = {
     'id': fields.String,
     'title': fields.String,
@@ -32,9 +41,21 @@ resource_fields = {
     'updated_at': fields.DateTime,
     'description': fields.String,
     'questions': fields.List(fields.Nested(question_fields)),
-    'user_id': fields.String,
+    'creator_id': fields.String,
     'public': fields.Boolean,
+    'allowed_users': fields.List(fields.Nested(allowed_users)),
 }
+
+user_fields = {
+    'id': fields.String,
+    'username': fields.String,
+    'email': fields.String,
+    'active': fields.String,
+    'admin': fields.String,
+    'created_at': fields.DateTime,
+#    'inquiries': fields.List(fields.Nested(resource_fields))
+}
+
 
 
 @api.route("/<string:inquiry_id>")
@@ -72,6 +93,15 @@ class InquiryRoute(Resource):
 
 @api.route("/")
 class InquiryListRoute(Resource):
+
+    inquiry_form = api.model("InquiryForm", {
+        "title": fields.String(required=True),
+        "description": fields.String,
+        "user_id": fields.String(
+            help="inquiry owner, if not provided has open results"
+            ),
+        })
+
     @marshal_with(resource_fields)
     def get(self):
         '''
@@ -83,7 +113,7 @@ class InquiryListRoute(Resource):
     # available for everyone
     @api.response(201, "Success")
     @api.response(400, 'Validation Error')
-    #@api.expect(parser)
+    @api.expect(inquiry_form)
     def post(self):
         '''
         Create an inquiry
@@ -167,5 +197,66 @@ class UserInqs(Resource):
                 for el in tupel if type(el) == Inquiry]
         '''
         return make_response(jsonify(unanswered_inqs), 200)
+
+
+@api.route("/share_inq")
+class ShareInq(Resource):
+    """route that shares inq with given users"""
+
+    share_form = api.model("ShareForm", {
+        "inq_id": fields.String(required=True),
+        "user_ids": fields.List(fields.String, required=True),
+        })
+
+    @api.expect(share_form)
+    def post(self):
+        post_data = request.get_json()
+
+        response_object = {
+                'status': 'fail',
+                'message': 'Invalid payload.'
+        }
+
+        if not post_data:
+            return make_response(jsonify(response_object), 400)
+
+        inq_id = post_data.get("inq_id")
+        user_ids = post_data.get("user_ids")
+
+        if not inq_id or not user_ids:
+            return make_response(jsonify(response_object), 400)
+
+        # check if there an inquiry with that id;
+        # then check existense of each user; if exists add to allowed users
+        try:
+            inq = Inquiry.query.filter_by(id=inq_id).first()
+            if not inq:
+                response_object["message"] = f"inquiry with id: {inq_id} does not exists"
+                return make_response(jsonify(response_object), 404)
+
+            users_not_found = []
+            for user_id in user_ids:
+                user = User.query.filter_by(id=user_id).first()
+                if not user:
+                    users_not_found.append(user_id)
+                else:
+                    inq.allowed_users.append(user)
+
+            # if progress was made - commit
+            if len(users_not_found) < len(user_ids):
+                db.session.commit()
+                response_object = {
+                        "status": "success",
+                        "message": "changes were made",
+                        "users not found": users_not_found,
+                    }
+                return make_response(jsonify(response_object), 200)
+            else:
+                response_object["message"] = "None of given users were found"
+                response_object["users not found"] = users_not_found
+                return make_response(jsonify(response_object), 404)
+        except (exc.IntegrityError, ValueError) as e:
+            db.session().rollback()
+            return make_response(jsonify(response_object), 400)
 
 
